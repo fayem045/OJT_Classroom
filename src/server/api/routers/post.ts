@@ -1,7 +1,5 @@
 import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { posts } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -14,17 +12,19 @@ export const postRouter = createTRPCRouter({
 
   create: publicProcedure
     .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(posts).values({
-        name: input.name,
-      });
+    .mutation(async ({ input }) => {
+      // For now, we'll just console.log the post that would be created
+      console.log('Would create post:', input.name);
+      return { success: true };
     }),
 
-  getLatest: publicProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db.query.posts.findFirst({
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    });
-
-    return post ?? null;
+  getLatest: publicProcedure.query(async () => {
+    // Return mock data instead of querying the database
+    return {
+      id: 1,
+      name: "Welcome to OJT Classroom",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
   }),
 });
