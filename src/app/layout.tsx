@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "~/styles/globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,9 +12,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
 export const metadata: Metadata = {
-  title: "TrainTrackDesk - Web-based OJT Tracker",
-  description: "A web-based OJT tracker system developed by Computer Engineering students of the University of the Assumption",
+  title: "TrainTrackDesk",
+  description: "Web-based OJT tracker system",
+  icons: {
+    icon: [
+      {
+        url: "/images/UA-Logo.png",
+        href: "/images/UA-Logo.png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +41,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans ${inter.variable} antialiased`}
       >
         {children}
       </body>
