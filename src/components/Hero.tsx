@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 const Hero = () => {
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400">
@@ -38,12 +40,17 @@ const Hero = () => {
                 to-white/40 backdrop-blur-sm shadow-2xl"></div>
               <div className="absolute inset-4 rounded-full bg-gradient-to-br from-white/20 
                 to-blue-300/30 backdrop-blur-md flex items-center justify-center overflow-hidden">
-                {/* Cloud elements */}
-                <div className="absolute top-1/4 left-1/4 w-12 h-6 bg-white/20 rounded-full"></div>
-                <div className="absolute top-1/3 right-1/4 w-16 h-8 bg-white/30 rounded-full"></div>
-                {/* Hill elements */}
-                <div className="absolute bottom-8 left-8 right-8 h-24 bg-blue-400/20 rounded-full"></div>
-                <div className="absolute bottom-12 left-12 right-12 h-16 bg-blue-300/20 rounded-full"></div>
+                {/* Logo */}
+                <div className="relative w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80">
+                  <Image
+                    src="/images/UA-Logo.png"
+                    alt="UA Logo"
+                    fill
+                    sizes="(max-width: 640px) 12rem, (max-width: 1024px) 16rem, 20rem"
+                    className="object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+                    priority
+                  />
+                </div>
               </div>
             </div>
           </div>

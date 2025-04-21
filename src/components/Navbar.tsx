@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
@@ -10,9 +11,17 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Left - Logo */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center">
-              <span className="text-blue-600 font-bold text-3xl tracking-tight">TTD</span>
-            </div>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/UA-Logo.png"
+                alt="UA Logo"
+                width={50}
+                height={50}
+                className="object-contain"
+                priority
+              />
+              <span className="text-blue-600 font-bold text-3xl tracking-tight ml-2">TTD</span>
+            </Link>
             <div className="h-6 w-px bg-gray-200 hidden sm:block" />
             <span className="text-gray-600 text-sm font-medium hidden sm:block">Web-base tracker</span>
           </div>
