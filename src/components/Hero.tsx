@@ -1,8 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
 
 const Hero = () => {
+  const { isSignedIn } = useUser();
+
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,16 +23,24 @@ const Hero = () => {
               of the University of the Assumption to streamline the internship monitoring process.
             </p>
             <div className="flex flex-wrap gap-4 sm:gap-6">
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-semibold rounded-xl 
-                shadow-lg hover:bg-blue-50 transform hover:-translate-y-1 hover:scale-105 
-                transition-all duration-300 active:scale-95">
-                SIGN UP
-              </button>
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white text-white 
-                font-semibold rounded-xl hover:bg-white/10 transform hover:-translate-y-1 
-                hover:scale-105 transition-all duration-300 active:scale-95">
-                GET STARTED
-              </button>
+              {!isSignedIn && (
+                <>
+                  <SignUpButton mode="modal">
+                    <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-semibold rounded-xl 
+                      shadow-lg hover:bg-blue-50 transform hover:-translate-y-1 hover:scale-105 
+                      transition-all duration-300 active:scale-95">
+                      SIGN UP
+                    </button>
+                  </SignUpButton>
+                  <SignInButton mode="modal">
+                    <button className="px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white text-white 
+                      font-semibold rounded-xl hover:bg-white/10 transform hover:-translate-y-1 
+                      hover:scale-105 transition-all duration-300 active:scale-95">
+                      GET STARTED
+                    </button>
+                  </SignInButton>
+                </>
+              )}
             </div>
           </div>
 

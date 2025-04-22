@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaUser } from 'react-icons/fa';
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 
 const Navbar = () => {
+  const { isSignedIn } = useUser();
+
   return (
     <nav className="fixed w-full bg-white/95 backdrop-blur-sm z-50 shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,12 +41,27 @@ const Navbar = () => {
             <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
               Home
             </Link>
-            <Link href="/classrooms" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
-              Classrooms
-            </Link>
-            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 bg-gray-50 rounded-full hover:bg-gray-100">
-              <FaUser className="w-5 h-5" />
-            </button>
+            {isSignedIn && (
+              <Link href="/classrooms" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                Classrooms
+              </Link>
+            )}
+            {isSignedIn ? (
+              <UserButton afterSignOutUrl="/" />
+            ) : (
+              <div className="flex items-center space-x-4">
+                <SignInButton mode="modal">
+                  <button className="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            )}
           </div>
         </div>
       </div>
