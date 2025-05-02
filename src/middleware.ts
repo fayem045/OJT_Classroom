@@ -1,14 +1,7 @@
-import { clerkMiddleware, createClerkClient } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Configure Clerk with clock skew tolerance
-const clerk = createClerkClient({
-  clockSkewTolerance: 30, // 30 seconds tolerance
-});
-
-// Use the configured Clerk client in the middleware
-export default clerkMiddleware({
-  clockSkewTolerance: 30, // 30 seconds tolerance
-});
+// Export the Clerk middleware with proper configuration
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
