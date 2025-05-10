@@ -32,7 +32,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider 
+      afterSignInUrl="/classrooms"
+      afterSignUpUrl="/classrooms"
+      appearance={{
+        elements: {
+          formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+          footer: 'hidden',
+          formFieldInput: 'rounded-md border-gray-300',
+          formFieldLabel: 'font-medium text-gray-700'
+        }
+      }}
+    >
       <html lang="en">
         <body
           suppressHydrationWarning

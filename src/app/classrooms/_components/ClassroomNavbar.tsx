@@ -1,11 +1,13 @@
 'use client';
 
-import { UserButton } from "@clerk/nextjs";
-import { Bell } from 'lucide-react';
+import { UserButton, useUser } from "@clerk/nextjs";
+import { Bell, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function ClassroomNavbar() {
+  const { user } = useUser();
+  const role = (user?.unsafeMetadata?.role as string) || 'student';
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -24,13 +26,15 @@ export default function ClassroomNavbar() {
             </Link>
             <div className="h-6 w-px bg-gray-200 hidden sm:block" />
             <span className="text-gray-600 text-sm font-medium hidden sm:block">Web-base tracker</span>
-          </div>
-
-          {/* Center - Title */}
+          </div>          {/* Center - Title */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
             <div className="flex flex-col items-center">
-              <h1 className="text-gray-800 font-semibold text-lg">Welcome TrainTrackDesk</h1>
-              <p className="text-gray-500 text-sm mt-0.5">We Make your Progress Traceability</p>
+              <h1 className="text-gray-800 font-semibold text-lg">
+                {role === 'admin' ? 'System Administration' :
+                 role === 'professor' ? 'Professor Dashboard' :
+                 'Student Dashboard'}
+              </h1>
+              <p className="text-gray-500 text-sm mt-0.5 capitalize">{role} View</p>
             </div>
           </div>
 
@@ -40,13 +44,21 @@ export default function ClassroomNavbar() {
               Home
             </Link>
             <Link href="/classrooms" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
-              Classrooms
+              Dashboard
             </Link>
+            {role === 'admin' && (
+              <Link href="/classrooms/system" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+                <Settings className="h-5 w-5" />
+              </Link>
+            )}
             <button className="p-2 hover:bg-gray-100 rounded-full relative">
               <Bell className="h-5 w-5 text-gray-600" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
             </button>
-            <UserButton afterSignOutUrl="/" />
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600 capitalize hidden sm:inline-block">{role}</span>
+              <UserButton afterSignOutUrl="/" />
+            </div>
           </div>
         </div>
       </div>

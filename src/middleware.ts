@@ -1,13 +1,12 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Export the Clerk middleware with proper configuration
-export default clerkMiddleware();
+export default authMiddleware({
+  publicRoutes: ["/", "/sign-in", "/sign-up", "/role-selection"],
+  ignoredRoutes: ["/api/clerk-webhook"]
+});
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
+  matcher: ["/((?!.*\\..*|_next|favicon.ico).*)", "/", "/(api|trpc)(.*)"],
 };

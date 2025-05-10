@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
+import Link from 'next/link';
 
 const Hero = () => {
   const { isSignedIn } = useUser();
@@ -25,18 +26,19 @@ const Hero = () => {
             <div className="flex flex-wrap gap-4 sm:gap-6">
               {!isSignedIn && (
                 <>
-                  <SignUpButton mode="modal">
-                    <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-semibold rounded-xl 
+                  <Link
+                    href="/sign-up"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-semibold rounded-xl 
                       shadow-lg hover:bg-blue-50 transform hover:-translate-y-1 hover:scale-105 
-                      transition-all duration-300 active:scale-95">
-                      SIGN UP
-                    </button>
-                  </SignUpButton>
+                      transition-all duration-300 active:scale-95"
+                  >
+                    SIGN UP
+                  </Link>
                   <SignInButton mode="modal">
                     <button className="px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white text-white 
                       font-semibold rounded-xl hover:bg-white/10 transform hover:-translate-y-1 
                       hover:scale-105 transition-all duration-300 active:scale-95">
-                      GET STARTED
+                      SIGN IN
                     </button>
                   </SignInButton>
                 </>
@@ -51,14 +53,12 @@ const Hero = () => {
                 to-white/40 backdrop-blur-sm shadow-2xl"></div>
               <div className="absolute inset-4 rounded-full bg-gradient-to-br from-white/20 
                 to-blue-300/30 backdrop-blur-md flex items-center justify-center overflow-hidden">
-                {/* Logo */}
                 <div className="relative w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80">
                   <Image
                     src="/images/UA-Logo.png"
                     alt="UA Logo"
                     fill
-                    sizes="(max-width: 640px) 12rem, (max-width: 1024px) 16rem, 20rem"
-                    className="object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+                    className="object-contain"
                     priority
                   />
                 </div>
