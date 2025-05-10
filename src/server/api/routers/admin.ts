@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { activities, companies, systemMetrics, users } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export const adminRouter = createTRPCRouter({
   getDashboardStats: publicProcedure
@@ -39,7 +39,7 @@ export const adminRouter = createTRPCRouter({
           totalCompanies: companyStats[0]?.count ?? 0,
         },
         recentActivities: activityStats,
-        systemMetrics: metrics[0],
+        systemMetrics: metrics[0] || null,
       };
     }),
 
@@ -62,7 +62,7 @@ export const adminRouter = createTRPCRouter({
       await db.insert(activities).values({
         type: 'system',
         action: `New ${input.role} added: ${input.email}`,
-        userId: user[0].id,
+        userId: user[0]?.id,
       });
 
       return user[0];
