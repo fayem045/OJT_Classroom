@@ -1,21 +1,82 @@
 'use client';
 
 import { Users, Building, GraduationCap, Settings, PieChart, UserPlus, BookOpen, Shield } from 'lucide-react';
+import { api } from "~/trpc/react";
+import { useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { AddUserModal, AddCompanyModal } from './modals/AdminModals';
 
 export default function AdminView() {
-  // Mock data for demonstration
-  const stats = {
-    totalStudents: 156,
-    totalCompanies: 24,
-    totalProfessors: 8,
-    activeInternships: 89
+  const { user } = useUser();
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [isAddingCompany, setIsAddingCompany] = useState(false);
+
+  // Fetch dashboard data
+  const { data: dashboardData, isLoading } = api.admin.getDashboardStats.useQuery(undefined, {
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Mutations
+  const addUserMutation = api.admin.addUser.useMutation({
+    onSuccess: () => {
+      setIsAddingUser(false);
+      // Refetch dashboard data
+      utils.admin.getDashboardStats.invalidate();
+    },
+  });
+
+  const addCompanyMutation = api.admin.addCompany.useMutation({
+    onSuccess: () => {
+      setIsAddingCompany(false);
+      // Refetch dashboard data
+      utils.admin.getDashboardStats.invalidate();
+    },
+  });
+
+  const updateSystemMetricsMutation = api.admin.updateSystemMetrics.useMutation({
+    onSuccess: () => {
+      utils.admin.getDashboardStats.invalidate();
+    },
+  });
+
+  const utils = api.useUtils();
+
+  // Handle user creation
+  const handleAddUser = async (data: { email: string; role: 'student' | 'professor' | 'admin' }) => {
+    try {
+      await addUserMutation.mutateAsync({
+        email: data.email,
+        role: data.role,
+        clerkId: 'temp_' + Date.now(), // In a real app, this would be handled by Clerk webhook
+      });
+    } catch (error) {
+      console.error('Failed to add user:', error);
+    }
   };
 
-  const recentActivities = [
-    { id: 1, type: 'student', action: 'New student registered', time: '2 hours ago' },
-    { id: 2, type: 'company', action: 'New company partnership added', time: '5 hours ago' },
-    { id: 3, type: 'professor', action: 'Professor evaluation submitted', time: '1 day ago' },
-  ];
+  // Handle company creation
+  const handleAddCompany = async (data: { name: string; address: string }) => {
+    try {
+      await addCompanyMutation.mutateAsync(data);
+    } catch (error) {
+      console.error('Failed to add company:', error);
+    }
+  };
+
+  // Stats from the API
+  const stats = {
+    totalStudents: dashboardData?.stats.totalStudents ?? 0,
+    totalCompanies: dashboardData?.stats.totalCompanies ?? 0,
+    totalProfessors: dashboardData?.stats.totalProfessors ?? 0,
+  };
+
+  const systemMetrics = dashboardData?.systemMetrics ?? {
+    systemLoad: 0,
+    storageUsage: 0,
+    lastBackup: new Date(),
+  };
+
+  const recentActivities = dashboardData?.recentActivities ?? [];
 
   return (
     <main className="flex-1 p-8">
@@ -52,14 +113,12 @@ export default function AdminView() {
           </div>
           <p className="text-3xl font-bold text-gray-900">{stats.totalProfessors}</p>
           <p className="text-sm text-gray-600 mt-1">OJT supervisors</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        </div>      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center space-x-3 mb-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
             <h3 className="text-lg font-semibold text-gray-900">Active OJTs</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.activeInternships}</p>
+          <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.totalStudents ?? 0}</p>
           <p className="text-sm text-gray-600 mt-1">Current internships</p>
         </div>
       </div>
@@ -76,17 +135,30 @@ export default function AdminView() {
               </div>
             </div>
             <div className="p-6 space-y-4">
-              <button className="w-full flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors justify-center">
+              <button 
+                onClick={() => setIsAddingUser(true)}
+                className="w-full flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors justify-center"
+              >
                 <UserPlus className="w-5 h-5" />
                 <span>Add New User</span>
               </button>
-              <button className="w-full flex items-center space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors justify-center">
+              <button 
+                onClick={() => setIsAddingCompany(true)}
+                className="w-full flex items-center space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors justify-center"
+              >
                 <Building className="w-5 h-5" />
                 <span>Register Company</span>
               </button>
-              <button className="w-full flex items-center space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors justify-center">
+              <button 
+                onClick={() => updateSystemMetricsMutation.mutate({
+                  systemLoad: Math.floor(Math.random() * 100),
+                  storageUsage: Math.floor(Math.random() * 100),
+                  lastBackup: new Date()
+                })}
+                className="w-full flex items-center space-x-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors justify-center"
+              >
                 <Shield className="w-5 h-5" />
-                <span>Manage Permissions</span>
+                <span>Update System Status</span>
               </button>
             </div>
           </div>
@@ -130,10 +202,9 @@ export default function AdminView() {
                   <div key={activity.id} className="flex items-start space-x-4">
                     {activity.type === 'student' && <Users className="w-5 h-5 text-blue-600 mt-1" />}
                     {activity.type === 'company' && <Building className="w-5 h-5 text-blue-600 mt-1" />}
-                    {activity.type === 'professor' && <GraduationCap className="w-5 h-5 text-blue-600 mt-1" />}
-                    <div>
+                    {activity.type === 'professor' && <GraduationCap className="w-5 h-5 text-blue-600 mt-1" />}                    <div>
                       <p className="text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-600">{activity.time}</p>
+                      <p className="text-sm text-gray-600">{new Date(activity.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -141,7 +212,17 @@ export default function AdminView() {
             </div>
           </div>
         </div>
-      </div>
+      </div>      {/* Modals */}
+      <AddUserModal
+        isOpen={isAddingUser}
+        onClose={() => setIsAddingUser(false)}
+        onSubmit={handleAddUser}
+      />
+      <AddCompanyModal
+        isOpen={isAddingCompany}
+        onClose={() => setIsAddingCompany(false)}
+        onSubmit={handleAddCompany}
+      />
     </main>
   );
 }
