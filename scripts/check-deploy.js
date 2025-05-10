@@ -30,12 +30,17 @@ console.log('✅ All required environment variables are set!\n');
 
 // Database URL format check
 const dbUrl = process.env.DATABASE_URL;
-try {
-  new URL(dbUrl);
-  console.log('✅ Database URL format is valid');
-} catch (e) {
-  console.error('❌ Invalid DATABASE_URL format');
-  console.error('   Expected format: postgresql://user:password@host:port/database\n');
+if (dbUrl) {
+  try {
+    new URL(dbUrl);
+    console.log('✅ Database URL format is valid');
+  } catch (e) {
+    console.error('❌ Invalid DATABASE_URL format');
+    console.error('   Expected format: postgresql://user:password@host:port/database\n');
+    process.exit(1);
+  }
+} else {
+  console.error('❌ DATABASE_URL is undefined');
   process.exit(1);
 }
 
@@ -48,7 +53,7 @@ const clerkKeys = {
 
 Object.entries(clerkKeys).forEach(([key, pattern]) => {
   const value = process.env[key];
-  if (!pattern.test(value)) {
+  if (value && !pattern.test(value)) {
     console.error(`❌ Invalid ${key} format`);
     console.error(`   Expected format: Should start with "${pattern.toString().slice(2, -1)}"\n`);
     process.exit(1);
