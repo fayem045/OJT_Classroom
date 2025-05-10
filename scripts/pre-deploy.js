@@ -4,7 +4,30 @@ console.log('🚀 Running pre-deployment checks...\n');
 
 const { execSync } = require('child_process');
 
-function runCommand(command, message) {
+// Required environment variables for deployment
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+  'CLERK_WEBHOOK_SECRET'
+] as const;
+
+// Check environment variables
+console.log('⏳ Checking environment variables...');
+const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error('\n❌ Missing required environment variables:');
+  missingVars.forEach((varName) => {
+    console.error(`   - ${varName}`);
+  });
+  console.error('\n📝 Add these variables in your deployment environment.');
+  process.exit(1);
+} else {
+  console.log('✅ All required environment variables are present\n');
+}
+
+function runCommand(command: string, message: string) {
     console.log(`⏳ ${message}...`);
     try {
         execSync(command, { stdio: 'inherit' });

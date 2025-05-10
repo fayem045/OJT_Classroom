@@ -13,11 +13,12 @@ This guide will help you deploy the OJT Classroom application to Vercel.
 Make sure to add these environment variables in your Vercel project settings:
 
 \`\`\`
-DATABASE_URL=your_postgres_connection_string
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
-ADMIN_EMAIL=your_admin_email@example.com
+DATABASE_URL=your_postgres_connection_string # Required: PostgreSQL connection URL with SSL enabled
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key # Required: Clerk publishable key for authentication
+CLERK_SECRET_KEY=your_clerk_secret_key # Required: Clerk secret key for backend operations
+CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret # Required: Webhook secret from Clerk dashboard
+ADMIN_EMAIL=your_admin_email@example.com # Optional: Email for the initial admin user
+NODE_ENV=production # Required: Set to 'production' in deployment
 \`\`\`
 
 ## Database Setup
