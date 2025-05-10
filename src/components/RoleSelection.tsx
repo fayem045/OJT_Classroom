@@ -10,20 +10,35 @@ export function RoleSelection() {
   const [role, setRole] = useState("student");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // Update Clerk user metadata
       await user?.update({
         unsafeMetadata: {
           role: role,
         },
       });
+
+      // Update database
+      const response = await fetch('/api/users/update-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user role in database');
+      }
+
       router.push("/classrooms");
     } catch (error) {
       console.error("Error setting role:", error);
+      alert("Failed to set role. Please try again.");
     } finally {
       setIsLoading(false);
     }

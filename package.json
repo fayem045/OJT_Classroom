@@ -2,7 +2,8 @@
   "name": "ojtclassroom-finalproj",
   "version": "0.1.0",
   "private": true,
-  "type": "module",  "scripts": {
+  "type": "module",
+  "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
@@ -22,12 +23,14 @@
     "deploy": "next build"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.18.4",
+    "@clerk/backend": "^1.32.0",
+    "@clerk/nextjs": "^6.19.2",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-query": "^5.69.0",
     "@trpc/client": "^11.0.0",
     "@trpc/react-query": "^11.0.0",
     "@trpc/server": "^11.0.0",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.41.0",
     "lucide-react": "^0.503.0",
     "next": "^15.2.3",
@@ -54,6 +57,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.15",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.27.0"
   },

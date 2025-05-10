@@ -5,19 +5,28 @@ import * as schema from "./schema";
 
 // Database connection configuration
 const connectionConfig = {
-  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  // Enable SSL for Neon database
+  ssl: true,
   // Maximum number of concurrent connections
   max: env.NODE_ENV === "production" ? 20 : 10,
   // Idle connection timeout (in seconds)
   idle_timeout: env.NODE_ENV === "production" ? 30 : 20,
   // Connection timeout (in seconds)
   connect_timeout: 10,
+  // Connection retry settings
+  max_retries: 3,
+  retry_interval: 1000,
   // Enable debug logging in development
   debug: env.NODE_ENV === "development",
   // Connection error handler
   onnotice: (notice: { message?: string }) => {
     if (notice.message) {
       console.log("Database Notice:", notice.message);
+    }
+  },
+  onparameter: (key: string, value: string) => {
+    if (key === "server_version") {
+      console.log("Connected to Postgres version:", value);
     }
   },
 };

@@ -33,8 +33,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider 
-      afterSignInUrl="/classrooms"
-      afterSignUpUrl="/classrooms"
+      afterSignInUrl={(session) => {
+        const userRole = session?.user?.unsafeMetadata?.role;
+        return userRole ? "/classrooms" : "/role-selection";
+      }}
+      afterSignUpUrl="/role-selection"
       appearance={{
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',

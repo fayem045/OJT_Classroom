@@ -5,6 +5,12 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    domains: [],
+    remotePatterns: [],
+  },
+  // Add any other configuration options here
+};
 
 export default config;

@@ -53,6 +53,7 @@ export const activities = createTable(
     action: text("action").notNull(),
     userId: integer("user_id").references(() => users.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   }
 );
 
@@ -65,5 +66,32 @@ export const systemMetrics = createTable(
     storageUsage: integer("storage_usage").notNull(),
     lastBackup: timestamp("last_backup").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+  }
+);
+
+// Classrooms table
+export const classrooms = createTable(
+  "classroom",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    professorId: integer("professor_id").references(() => users.id).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  }
+);
+
+// StudentClassrooms table (for many-to-many relationship)
+export const studentClassrooms = createTable(
+  "student_classroom",
+  {
+    id: serial("id").primaryKey(),
+    studentId: integer("student_id").references(() => users.id).notNull(),
+    classroomId: integer("classroom_id").references(() => classrooms.id).notNull(),
+    status: varchar("status", { length: 50 }).default("active").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   }
 );
