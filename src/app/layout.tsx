@@ -33,10 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider 
-      afterSignInUrl={(session) => {
-        const userRole = session?.user?.unsafeMetadata?.role;
-        return userRole ? "/classrooms" : "/role-selection";
-      }}
+      afterSignInUrl="/role-selection"
       afterSignUpUrl="/role-selection"
       appearance={{
         elements: {
