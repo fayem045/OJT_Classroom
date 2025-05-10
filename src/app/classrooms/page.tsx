@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 // Components
 import Sidebar from "./_components/Sidebar";
 import ProfessorView from "./_components/ProfessorView";
-import AdminView from "./_components/AdminView";
 import ClassroomNavbar from "./_components/ClassroomNavbar";
 
 export default async function ClassroomPage() {
@@ -21,19 +20,13 @@ export default async function ClassroomPage() {
   if (role === 'student') {
     redirect("/classrooms/student");
   }
+  
+  // Redirect admins and professors to the new admin dashboard
+  if (role === 'admin' || role === 'professor') {
+    redirect("/classrooms/admin");
+  }
 
-  const getViewComponent = () => {
-    switch (role) {
-      case 'professor':
-        return <ProfessorView />;
-      case 'admin':
-        return <AdminView />;
-      default:
-        // This should not be reached due to the redirect above
-        return null;
-    }
-  };
-
+  // This code should never be reached now
   return (
     <>
       <ClassroomNavbar />
@@ -42,7 +35,7 @@ export default async function ClassroomPage() {
         <Sidebar />
         
         {/* Main Content */}
-        {getViewComponent()}
+        <ProfessorView />
       </div>
     </>
   );

@@ -1,28 +1,29 @@
 'use client';
 
-import { Calendar, LineChart, FileText, User, Users, Settings, Building, GraduationCap } from 'lucide-react';
+import { Calendar, LineChart, FileText, User, Users, Settings, Building, GraduationCap, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from "@clerk/nextjs";
 
 const roleBasedNavItems = {
   student: [
-    { icon: Calendar, label: 'Calendar', href: '/classrooms/calendar' },
-    { icon: LineChart, label: 'Progress', href: '/classrooms/progress' },
-    { icon: FileText, label: 'Reports', href: '/classrooms/reports' },
-    { icon: User, label: 'Profile', href: '/classrooms/profile' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/student' },
+    { icon: Calendar, label: 'Calendar', href: '/classrooms/student/calendar' },
+    { icon: LineChart, label: 'Progress', href: '/classrooms/student/progress' },
+    { icon: FileText, label: 'Reports', href: '/classrooms/student/reports' },
+    { icon: User, label: 'Profile', href: '/classrooms/student/profile' },
   ],
   professor: [
-    { icon: Users, label: 'Students', href: '/classrooms/students' },
-    { icon: Calendar, label: 'Schedule', href: '/classrooms/schedule' },
-    { icon: FileText, label: 'Evaluations', href: '/classrooms/evaluations' },
-    { icon: Settings, label: 'Settings', href: '/classrooms/settings' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/admin/dashboard' },
+    { icon: Users, label: 'Students', href: '/classrooms/admin/students' },
+    { icon: FileText, label: 'Reports', href: '/classrooms/admin/reports' },
+    { icon: Settings, label: 'Settings', href: '/classrooms/admin/settings' },
   ],
   admin: [
-    { icon: Users, label: 'Users', href: '/classrooms/users' },
-    { icon: Building, label: 'Companies', href: '/classrooms/companies' },
-    { icon: GraduationCap, label: 'Professors', href: '/classrooms/professors' },
-    { icon: Settings, label: 'System', href: '/classrooms/system' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/admin/dashboard' },
+    { icon: Users, label: 'Students', href: '/classrooms/admin/students' },
+    { icon: FileText, label: 'Reports', href: '/classrooms/admin/reports' },
+    { icon: Settings, label: 'Settings', href: '/classrooms/admin/settings' },
   ],
 };
 
@@ -41,7 +42,7 @@ export default function Sidebar() {
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             
             return (
               <li key={item.href}>

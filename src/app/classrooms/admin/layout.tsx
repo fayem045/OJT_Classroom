@@ -5,30 +5,28 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  Calendar, 
-  BarChart2, 
+  LayoutDashboard, 
+  Users, 
   FileText, 
-  User,
-  Home,
+  Settings,
   Menu,
   X
 } from 'lucide-react';
-import StudentNavbar from './components/StudentNavbar';
+import AdminNavbar from '@/app/classrooms/admin/components/AdminNavbar';
 
-interface StudentLayoutProps {
+interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export default function StudentLayout({ children }: StudentLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: '/classrooms/student', icon: Home, current: pathname === '/classrooms/student' },
-    { name: 'Calendar', href: '/classrooms/student/calendar', icon: Calendar, current: pathname.startsWith('/classrooms/student/calendar') },
-    { name: 'Progress', href: '/classrooms/student/progress', icon: BarChart2, current: pathname.startsWith('/classrooms/student/progress') },
-    { name: 'Reports', href: '/classrooms/student/reports', icon: FileText, current: pathname.startsWith('/classrooms/student/reports') },
-    { name: 'Profile', href: '/classrooms/student/profile', icon: User, current: pathname.startsWith('/classrooms/student/profile') },
+    { name: 'Dashboard', href: '/classrooms/admin/dashboard', icon: LayoutDashboard, current: pathname === '/classrooms/admin/dashboard' || pathname === '/classrooms/admin' },
+    { name: 'Students', href: '/classrooms/admin/students', icon: Users, current: pathname.startsWith('/classrooms/admin/students') },
+    { name: 'Reports', href: '/classrooms/admin/reports', icon: FileText, current: pathname.startsWith('/classrooms/admin/reports') },
+    { name: 'Settings', href: '/classrooms/admin/settings', icon: Settings, current: pathname.startsWith('/classrooms/admin/settings') },
   ];
 
   return (
@@ -58,7 +56,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             </div>
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex items-center px-4">
-                <h1 className="text-blue-600 text-xl font-bold">TrainTrackDesk</h1>
+                <h1 className="text-blue-600 text-xl font-bold">Admin Panel</h1>
               </div>
               <nav className="mt-5 px-2 space-y-1">
                 {navigation.map((item) => (
@@ -92,7 +90,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex items-center flex-shrink-0 px-4">
-                <h1 className="text-blue-600 text-xl font-bold">TrainTrackDesk</h1>
+                <h1 className="text-blue-600 text-xl font-bold">Admin Panel</h1>
               </div>
               <nav className="mt-5 flex-1 px-2 space-y-1">
                 {navigation.map((item) => (
@@ -123,7 +121,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       {/* Main content */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top navbar */}
-        <StudentNavbar />
+        <AdminNavbar />
         
         <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
           <button
