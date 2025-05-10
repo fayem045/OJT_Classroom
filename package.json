@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",  "scripts": {
-    "build": "node scripts/check-deploy.js && next build",
+    "build": "next build",
     "check": "next lint && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:setup": "tsx scripts/setup-database.ts",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
@@ -17,7 +18,8 @@
     "preview": "next build && next start",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "predeploy": "node scripts/check-deploy.js"
+    "predeploy": "node scripts/pre-deploy.js",
+    "deploy": "next build"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.18.4",
