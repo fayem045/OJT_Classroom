@@ -1,8 +1,8 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 console.log('🚀 Running pre-deployment checks...\n');
 
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 // Required environment variables for deployment
 const requiredEnvVars = [
@@ -33,7 +33,7 @@ function runCommand(command: string, message: string) {
         execSync(command, { stdio: 'inherit' });
         console.log(`✅ ${message} completed successfully!\n`);
         return true;
-    } catch (error) {
+    } catch (error: any) {
         console.error(`❌ ${message} failed!`);
         console.error(error.message);
         return false;
