@@ -65,9 +65,9 @@ export default function AdminView() {
 
   // Stats from the API
   const stats = {
-    totalStudents: dashboardData?.stats.totalStudents ?? 0,
-    totalCompanies: dashboardData?.stats.totalCompanies ?? 0,
-    totalProfessors: dashboardData?.stats.totalProfessors ?? 0,
+    totalStudents: Number(dashboardData?.stats?.totalStudents ?? 0),
+    totalCompanies: Number(dashboardData?.stats?.totalCompanies ?? 0),
+    totalProfessors: Number(dashboardData?.stats?.totalProfessors ?? 0),
   };
 
   const systemMetrics = dashboardData?.systemMetrics ?? {
@@ -118,7 +118,7 @@ export default function AdminView() {
             <BookOpen className="w-6 h-6 text-blue-600" />
             <h3 className="text-lg font-semibold text-gray-900">Active OJTs</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.totalStudents ?? 0}</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalStudents}</p>
           <p className="text-sm text-gray-600 mt-1">Current internships</p>
         </div>
       </div>

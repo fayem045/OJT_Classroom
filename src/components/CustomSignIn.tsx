@@ -1,8 +1,8 @@
-import { SignUp } from "@clerk/nextjs";
+import { SignIn } from "@clerk/nextjs";
 
-export function CustomSignUp() {
+export function CustomSignIn() {
   return (
-    <SignUp
+    <SignIn
       appearance={{
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
@@ -11,10 +11,10 @@ export function CustomSignUp() {
           card: 'rounded-xl shadow-lg',
         }
       }}
-      path="/sign-up"
-      afterSignUpUrl="/sign-in"
-      signInUrl="/sign-in"
+      path="/sign-in"
+      afterSignInUrl="/role-selection"
+      signUpUrl="/sign-up"
       routing="path"
     />
   );
-}
+} 

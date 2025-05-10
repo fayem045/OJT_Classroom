@@ -33,8 +33,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider 
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       afterSignInUrl="/role-selection"
-      afterSignUpUrl="/role-selection"
+      afterSignUpUrl="/sign-in"
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
       appearance={{
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',

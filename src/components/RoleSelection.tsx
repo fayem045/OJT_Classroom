@@ -63,7 +63,7 @@ export function RoleSelection() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div 
               className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                 role === "student" 
@@ -93,7 +93,7 @@ export function RoleSelection() {
 
             <div 
               className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                role === "professor" 
+                role === "professor" || role === "admin" 
                   ? "border-blue-600 bg-blue-50" 
                   : "border-gray-200 hover:border-blue-300"
               }`}
@@ -104,43 +104,16 @@ export function RoleSelection() {
                 id="professor"
                 name="role"
                 value="professor"
-                checked={role === "professor"}
+                checked={role === "professor" || role === "admin"}
                 onChange={(e) => setRole(e.target.value)}
                 className="hidden"
               />
               <label htmlFor="professor" className="cursor-pointer">
                 <div className="flex flex-col items-center text-center space-y-2">
-                  <span className={`font-medium ${role === "professor" ? "text-blue-600" : "text-gray-700"}`}>
-                    Professor
+                  <span className={`font-medium ${role === "professor" || role === "admin" ? "text-blue-600" : "text-gray-700"}`}>
+                    Professor/Admin
                   </span>
-                  <p className="text-sm text-gray-500">Supervise & evaluate</p>
-                </div>
-              </label>
-            </div>
-
-            <div 
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                role === "admin" 
-                  ? "border-blue-600 bg-blue-50" 
-                  : "border-gray-200 hover:border-blue-300"
-              }`}
-              onClick={() => setRole("admin")}
-            >
-              <input
-                type="radio"
-                id="admin"
-                name="role"
-                value="admin"
-                checked={role === "admin"}
-                onChange={(e) => setRole(e.target.value)}
-                className="hidden"
-              />
-              <label htmlFor="admin" className="cursor-pointer">
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <span className={`font-medium ${role === "admin" ? "text-blue-600" : "text-gray-700"}`}>
-                    Admin
-                  </span>
-                  <p className="text-sm text-gray-500">Manage overall system</p>
+                  <p className="text-sm text-gray-500">Supervise, evaluate & manage system</p>
                 </div>
               </label>
             </div>
