@@ -1,42 +1,34 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+'use client';
 
-// Components
-import Sidebar from "./_components/Sidebar";
-import ProfessorView from "./_components/ProfessorView";
-import ClassroomNavbar from "./_components/ClassroomNavbar";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from "@clerk/nextjs";
+import Loading from '@/components/Loading';
 
-export default async function ClassroomPage() {
-  const { userId } = await auth();
+export default function ClassroomPage() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
   
-  if (!userId) {
-    redirect("/");
-  }
-
-  const user = await currentUser();
-  const role = user?.unsafeMetadata.role as string || 'student';
-
-  // Redirect students to the new student dashboard
-  if (role === 'student') {
-    redirect("/classrooms/student");
-  }
+  useEffect(() => {
+    if (isLoaded) {
+      if (!user) {
+        router.replace('/');
+        return;
+      }
+      
+      // Get role from metadata or default to 'student'
+      const role = user?.unsafeMetadata.role as string || 'student';
+      
+      // Redirect based on role
+      if (role === 'student') {
+        router.replace('/classrooms/student');
+      } else if (role === 'admin' || role === 'professor') {
+        router.replace('/classrooms/admin');
+      } else {
+        router.replace('/role-selection');
+      }
+    }
+  }, [user, isLoaded, router]);
   
-  // Redirect admins and professors to the new admin dashboard
-  if (role === 'admin' || role === 'professor') {
-    redirect("/classrooms/admin");
-  }
-
-  // This code should never be reached now
-  return (
-    <>
-      <ClassroomNavbar />
-      <div className="flex min-h-screen pt-16 bg-gray-50">
-        {/* Sidebar */}
-        <Sidebar />
-        
-        {/* Main Content */}
-        <ProfessorView />
-      </div>
-    </>
-  );
+  return <Loading />;
 }

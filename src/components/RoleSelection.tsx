@@ -10,6 +10,7 @@ export function RoleSelection() {
   const [role, setRole] = useState("student");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -35,7 +36,12 @@ export function RoleSelection() {
         throw new Error('Failed to update user role in database');
       }
 
-      router.push("/classrooms");
+      // Direct routing based on role - use window.location for immediate navigation
+      if (role === 'student') {
+        window.location.href = "/classrooms/student";
+      } else {
+        window.location.href = "/classrooms/admin";
+      }
     } catch (error) {
       console.error("Error setting role:", error);
       alert("Failed to set role. Please try again.");

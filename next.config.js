@@ -8,8 +8,15 @@ import "./src/env.js";
 const config = {
   images: {
     domains: [],
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
+    ],
   },
+  // Specify a local directory for build output
+  distDir: process.env.NODE_ENV === 'development' ? '.next-local' : '.next',
   // Add any other configuration options here
 };
 

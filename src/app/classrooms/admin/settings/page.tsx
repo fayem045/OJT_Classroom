@@ -19,59 +19,6 @@ export default async function AdminSettingsPage() {
       
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium mb-4">General Settings</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="systemName" className="block text-sm font-medium text-gray-700">System Name</label>
-              <input
-                type="text"
-                id="systemName"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                defaultValue="TrainTrackDesk"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="academicYear" className="block text-sm font-medium text-gray-700">Academic Year</label>
-              <input
-                type="text"
-                id="academicYear"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                defaultValue="2024-2025"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="requiredHours" className="block text-sm font-medium text-gray-700">Required OJT Hours</label>
-              <input
-                type="number"
-                id="requiredHours"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                defaultValue="500"
-              />
-            </div>
-            
-            <div className="flex items-center">
-              <input
-                id="enableNotifications"
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                defaultChecked
-              />
-              <label htmlFor="enableNotifications" className="ml-2 block text-sm text-gray-900">
-                Enable Email Notifications
-              </label>
-            </div>
-          </div>
-          
-          <div className="mt-6">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-              Save Changes
-            </button>
-          </div>
-        </div>
-        
-        <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-medium mb-4">User Management</h2>
           <div className="space-y-4">
             <div>
@@ -82,8 +29,7 @@ export default async function AdminSettingsPage() {
                 defaultValue="student"
               >
                 <option value="student">Student</option>
-                <option value="professor">Professor</option>
-                <option value="admin">Admin</option>
+                <option value="admin">Admin/Professor</option>
               </select>
             </div>
             

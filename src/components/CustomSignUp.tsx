@@ -1,3 +1,5 @@
+'use client';
+
 import { SignUp } from "@clerk/nextjs";
 
 export function CustomSignUp() {
@@ -12,9 +14,18 @@ export function CustomSignUp() {
         }
       }}
       path="/sign-up"
-      afterSignUpUrl="/sign-in"
       signInUrl="/sign-in"
       routing="path"
+      redirectUrl="/role-selection"
+      afterSignUpUrl="/role-selection"
     />
   );
+}
+
+// Add a script to handle redirection
+if (typeof window !== 'undefined') {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('createdSessionId')) {
+    window.location.href = '/role-selection';
+  }
 }

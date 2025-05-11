@@ -1,4 +1,7 @@
+'use client';
+
 import { SignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export function CustomSignIn() {
   return (
@@ -12,9 +15,18 @@ export function CustomSignIn() {
         }
       }}
       path="/sign-in"
-      afterSignInUrl="/role-selection"
       signUpUrl="/sign-up"
       routing="path"
+      redirectUrl="/classrooms"
+      afterSignInUrl="/classrooms"
     />
   );
+}
+
+// Add a script to handle redirection
+if (typeof window !== 'undefined') {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('createdSessionId')) {
+    window.location.href = '/classrooms';
+  }
 } 

@@ -1,13 +1,23 @@
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+'use client';
 
-export default async function AdminPage() {
-  const { userId } = await auth();
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from "@clerk/nextjs";
+import Loading from '@/components/Loading';
+
+export default function AdminPage() {
+  const { userId, isLoaded } = useAuth();
+  const router = useRouter();
   
-  if (!userId) {
-    redirect("/sign-in");
-  }
-  
-  // Redirect to the dashboard
-  redirect("/classrooms/admin/dashboard");
+  useEffect(() => {
+    if (isLoaded) {
+      if (!userId) {
+        router.replace('/sign-in');
+      } else {
+        router.replace('/classrooms/admin/dashboard');
+      }
+    }
+  }, [userId, isLoaded, router]);
+
+  return <Loading />;
 } 
