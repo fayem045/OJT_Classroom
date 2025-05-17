@@ -73,7 +73,9 @@ export async function POST(req: NextRequest) {
     let redirectUrl = "/";
     if (role === "student") {
       redirectUrl = "/classrooms/student";
-    } else if (role === "professor" || role === "admin") {
+    } else if (role === "professor") {
+      redirectUrl = "/classrooms/prof/dashboard";
+    } else if (role === "admin") {
       redirectUrl = "/classrooms/admin/dashboard";
     }
 
