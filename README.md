@@ -1,29 +1,109 @@
-# Create T3 App
+# TrainTrackDesk - OJT Classroom Management System
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+TrainTrackDesk is a web-based On-the-Job Training (OJT) tracking system designed to facilitate classroom management, student assignments, and training progress monitoring. The platform provides different interfaces and capabilities for students, professors, and administrators.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **User Authentication & Role Management**
+  - Secure user authentication via Clerk
+  - Role-based access control (student, professor, admin)
+  - Profile management
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Classroom Management**
+  - Create and manage classrooms
+  - Upload classroom materials (documents, images)
+  - Manage student enrollment
+  - Real-time updates on classroom activities
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **File Upload System**
+  - Secure file uploads using UploadThing
+  - Support for images and documents (PDF, DOCX)
+  - File management with appropriate permissions
 
-## Learn More
+- **Database Integration**
+  - PostgreSQL database with Drizzle ORM
+  - Efficient data querying and management
+  - Structured data modeling
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Technology Stack
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- **Front-end**
+  - React.js for UI components
+  - Next.js for server-side rendering and API routes
+  - TailwindCSS for styling
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- **Back-end**
+  - Next.js API Routes
+  - PostgreSQL database
+  - Drizzle ORM for database interactions
 
-## How do I deploy this?
+- **Authentication & Users**
+  - Clerk for authentication and user management
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- **Storage**
+  - UploadThing for file uploads and storage
+
+- **Deployment**
+  - Vercel for hosting and deployment
+
+## Setup Guide
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- PostgreSQL database (we use Neon)
+
+### Environment Setup
+
+1. Clone the repository
+2. Create a `.env` file with the following variables:
+
+```
+# Database
+DATABASE_URL=your_postgresql_connection_string
+
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
+
+# UploadThing
+UPLOADTHING_SECRET=your_uploadthing_secret
+UPLOADTHING_APP_ID=your_uploadthing_app_id
+NEXT_PUBLIC_UPLOADTHING_URL=your_uploadthing_url
+
+# Environment
+NODE_ENV=development
+```
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Generate database migrations
+npm run db:generate
+
+# Push schema to database
+npm run db:push
+
+# Set up initial data
+npm run db:setup
+
+# Start development server
+npm run dev
+```
+
+### Access the Application
+
+Once the server is running, access the application at:
+
+```
+http://localhost:3000
+```
+
+## License
+
+This project is licensed under the MIT License.

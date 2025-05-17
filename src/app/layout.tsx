@@ -1,6 +1,10 @@
 import { type Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "~/app/api/uploadthing/core";
+import { TRPCReactProvider } from "~/trpc/react";
 import "~/styles/globals.css";
 
 const geistSans = Geist({
@@ -26,6 +30,11 @@ export const metadata: Metadata = {
   },
 };
 
+// Check if UploadThing is configured
+const isUploadThingConfigured = 
+  typeof process.env.NEXT_PUBLIC_UPLOADTHING_URL === 'string' && 
+  process.env.NEXT_PUBLIC_UPLOADTHING_URL !== '';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,10 +43,10 @@ export default function RootLayout({
   return (
     <ClerkProvider 
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      afterSignInUrl="/classrooms"
-      afterSignUpUrl="/role-selection"
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
+      afterSignInUrl="/role-selection"
+      afterSignUpUrl="/role-selection"
       appearance={{
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
@@ -52,7 +61,12 @@ export default function RootLayout({
           suppressHydrationWarning
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          {children}
+          {isUploadThingConfigured && (
+            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          )}
+          <TRPCReactProvider>
+            {children}
+          </TRPCReactProvider>
         </body>
       </html>
     </ClerkProvider>

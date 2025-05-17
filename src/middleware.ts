@@ -1,20 +1,18 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-// Public routes that don't require authentication
-const publicPaths = [
-  '/',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/api/clerk-webhook'
-];
+// This example protects all routes including api/trpc routes
+// Please edit this to allow other routes to be public as needed.
+// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your middleware
+export default clerkMiddleware({
+  beforeAuth: (req: any) => {
+    // No need to redirect admin URLs as they've been replaced with prof URLs
+    return NextResponse.next();
+  },
+  publicRoutes: ["/", "/sign-in(.*)", "/sign-up(.*)", "/api(.*)"],
+});
 
-export default clerkMiddleware();
-
+// Configure the matcher to include all routes
 export const config = {
-  matcher: [
-    "/((?!.*\\..*|_next).*)",
-    "/(api|trpc)(.*)"
-  ],
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 }; 

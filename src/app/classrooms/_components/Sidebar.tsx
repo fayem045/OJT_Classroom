@@ -14,16 +14,16 @@ const roleBasedNavItems = {
     { icon: User, label: 'Profile', href: '/classrooms/student/profile' },
   ],
   professor: [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/admin/dashboard' },
-    { icon: Users, label: 'Students', href: '/classrooms/admin/students' },
-    { icon: FileText, label: 'Reports', href: '/classrooms/admin/reports' },
-    { icon: Settings, label: 'Settings', href: '/classrooms/admin/settings' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/prof/dashboard' },
+    { icon: Users, label: 'Students', href: '/classrooms/prof/students' },
+    { icon: FileText, label: 'Reports', href: '/classrooms/prof/reports' },
+    { icon: Settings, label: 'Settings', href: '/classrooms/prof/settings' },
   ],
   admin: [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/admin/dashboard' },
-    { icon: Users, label: 'Students', href: '/classrooms/admin/students' },
-    { icon: FileText, label: 'Reports', href: '/classrooms/admin/reports' },
-    { icon: Settings, label: 'Settings', href: '/classrooms/admin/settings' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/classrooms/prof/dashboard' },
+    { icon: Users, label: 'Students', href: '/classrooms/prof/students' },
+    { icon: FileText, label: 'Reports', href: '/classrooms/prof/reports' },
+    { icon: Settings, label: 'Settings', href: '/classrooms/prof/settings' },
   ],
 };
 

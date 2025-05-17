@@ -1,93 +1,101 @@
 # Deployment Guide
 
-This guide will help you deploy the OJT Classroom application to Vercel.
+This guide will help you deploy the TrainTrackDesk application to Vercel.
 
 ## Prerequisites
 
-1. A [Vercel](https://vercel.com) account
-2. A [Clerk](https://clerk.dev) account
-3. A PostgreSQL database (you can use Vercel Postgres)
+- A [Vercel](https://vercel.com) account
+- A [Neon](https://neon.tech) PostgreSQL database (or other PostgreSQL provider)
+- A [Clerk](https://clerk.dev) account for authentication
+- An [UploadThing](https://uploadthing.com) account for file uploads
 
-## Environment Variables
+## Step 1: Prepare Your Database
 
-Make sure to add these environment variables in your Vercel project settings:
+1. Create a new PostgreSQL database on Neon or your preferred provider
+2. Get the connection string for your database
+3. Ensure the database is accessible from the internet
 
-\`\`\`
-DATABASE_URL=your_postgres_connection_string # Required: PostgreSQL connection URL with SSL enabled
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key # Required: Clerk publishable key for authentication
-CLERK_SECRET_KEY=your_clerk_secret_key # Required: Clerk secret key for backend operations
-CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret # Required: Webhook secret from Clerk dashboard
-ADMIN_EMAIL=your_admin_email@example.com # Optional: Email for the initial admin user
-NODE_ENV=production # Required: Set to 'production' in deployment
-\`\`\`
+## Step 2: Configure Clerk
 
-## Database Setup
+1. Create a new application in Clerk
+2. Go to API Keys in your Clerk Dashboard
+3. Copy the Publishable Key and Secret Key
+4. Configure your redirect URLs in Clerk to match your production domain
+5. Set up a webhook endpoint on Clerk with the following settings:
+   - URL: `https://your-production-domain.com/api/clerk-webhook`
+   - Events: `user.created`, `user.updated`, `user.deleted`
+   - Copy the webhook signing secret
 
-1. Create a new Postgres database in Vercel:
-   - Go to your Vercel dashboard
-   - Select "Storage" from the sidebar
-   - Click "Create Database"
-   - Choose "Postgres"
-   - Follow the setup wizard
+## Step 3: Configure UploadThing
 
-2. Copy the `DATABASE_URL` from Vercel and add it to your environment variables.
+1. Create an account on UploadThing
+2. Create a new application
+3. Get your API keys (Secret and App ID)
+4. Configure allowed domains to include your production domain
 
-## Clerk Setup
+## Step 4: Deploy to Vercel
 
-1. Create a new application in Clerk:
-   - Go to [Clerk Dashboard](https://dashboard.clerk.dev)
-   - Click "Add Application"
-   - Choose "Next.js"
-   - Copy the required API keys
+1. Connect your GitHub repository to Vercel
+2. Configure the following environment variables:
 
-2. Configure Clerk webhooks:
-   - In your Clerk dashboard, go to "Webhooks"
-   - Add a new webhook endpoint: `https://your-domain.vercel.app/api/clerk-webhook`
-   - Copy the webhook secret and add it to your environment variables
+```
+# Database
+DATABASE_URL=your_postgresql_connection_string
 
-## Deployment Steps
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
 
-1. Push your code to GitHub
+# UploadThing
+UPLOADTHING_SECRET=your_uploadthing_secret
+UPLOADTHING_APP_ID=your_uploadthing_app_id
+NEXT_PUBLIC_UPLOADTHING_URL=your_uploadthing_url
 
-2. Import your repository in Vercel:
-   - Go to [Vercel Dashboard](https://vercel.com)
-   - Click "Import Project"
-   - Choose your repository
-   - Select "Next.js" as the framework
+# Environment
+NODE_ENV=production
+```
 
-3. Configure environment variables:
-   - Add all required environment variables in your Vercel project settings
-   - Make sure to use the production database URL
+3. Deploy your application
 
-4. Deploy:
-   - Click "Deploy"
-   - The `predeploy` script will automatically:
-     - Check environment variables
-     - Push database schema
-     - Set up initial data
+## Step 5: Initialize the Database
 
-## Post-Deployment
+After deploying, you need to initialize your database schema:
 
-1. Verify your deployment:
-   - Check the deployment logs for any errors
-   - Test the application at your Vercel URL
-   - Make sure the database is properly connected
+1. Use the Vercel CLI to trigger a database migration:
+   ```bash
+   vercel env pull .env.production
+   npx drizzle-kit push
+   ```
 
-2. Monitor your application:
-   - Check Vercel analytics
-   - Monitor database performance
-   - Watch Clerk authentication logs
+   Alternatively, you can run a one-time deployment script through Vercel.
+
+2. Verify that your database tables have been created
+
+## Step 6: Verify Your Deployment
+
+1. Test user registration and login
+2. Test classroom creation
+3. Test file uploads
+4. Ensure all features are working as expected
 
 ## Troubleshooting
 
-If you encounter issues:
+### Database Connection Issues
+- Ensure your database is accessible from Vercel's servers
+- Check that your connection string is correctly formatted
+- Verify that your database user has the correct permissions
 
-1. Check deployment logs in Vercel dashboard
-2. Verify environment variables are correctly set
-3. Ensure database connection is working
-4. Check Clerk webhook logs for authentication issues
+### Authentication Issues
+- Verify that your Clerk keys are correct
+- Check that your redirect URLs are configured properly
+- Ensure the webhook endpoint is accessible
 
-For more help, refer to:
-- [Vercel Documentation](https://vercel.com/docs)
-- [Clerk Documentation](https://clerk.dev/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
+### File Upload Issues
+- Confirm that your UploadThing configuration is correct
+- Check that your domain is whitelisted in UploadThing
+- Verify that your environment variables are correctly set
+
+## Need Help?
+
+If you encounter any issues during deployment, please submit a support ticket with detailed information about the problem.

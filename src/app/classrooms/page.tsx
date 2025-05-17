@@ -2,33 +2,45 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from "@clerk/nextjs";
-import Loading from '@/components/Loading';
+import { useAuth } from '@clerk/nextjs';
+import { Loader2 } from 'lucide-react';
 
-export default function ClassroomPage() {
-  const { user, isLoaded } = useUser();
+export default function ClassroomsRouter() {
   const router = useRouter();
-  
+  const { userId, isLoaded } = useAuth();
+
   useEffect(() => {
-    if (isLoaded) {
-      if (!user) {
-        router.replace('/');
-        return;
-      }
-      
-      // Get role from metadata or default to 'student'
-      const role = user?.unsafeMetadata.role as string || 'student';
-      
-      // Redirect based on role
-      if (role === 'student') {
-        router.replace('/classrooms/student');
-      } else if (role === 'admin' || role === 'professor') {
-        router.replace('/classrooms/admin');
-      } else {
-        router.replace('/role-selection');
+    if (!isLoaded || !userId) {
+      router.push('/sign-in');
+      return;
+    }
+
+    async function checkUserAndRedirect() {
+      try {
+        // Check if user exists in database
+        const res = await fetch(`/api/users/check-role?clerkId=${userId}`);
+        const data = await res.json();
+        
+        if (!data.exists) {
+          // User needs to be set up
+          router.push('/');
+        } else {
+          // Redirect to main dashboard
+          router.push("/classrooms");
+        }
+      } catch (error) {
+        console.error("Error checking user:", error);
+        router.push("/");
       }
     }
-  }, [user, isLoaded, router]);
-  
-  return <Loading />;
+
+    checkUserAndRedirect();
+  }, [userId, isLoaded, router]);
+
+  return (
+    <div className="h-screen flex flex-col items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <p className="mt-4 text-gray-600">Redirecting to your dashboard...</p>
+    </div>
+  );
 }

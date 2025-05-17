@@ -15,7 +15,7 @@ const config = {
       },
     ],
   },
-  // Specify a local directory for build output
+  // Keep custom output directory for development
   distDir: process.env.NODE_ENV === 'development' ? '.next-local' : '.next',
   // Add any other configuration options here
 };

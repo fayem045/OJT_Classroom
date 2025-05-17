@@ -1,11 +1,123 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser, useAuth } from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
+  const { userId } = useAuth();
+  const router = useRouter();
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasCheckedRole, setHasCheckedRole] = useState(false);
+
+  // Check if user needs to select a role
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | undefined;
+
+    async function checkUserRole() {
+      if (!isLoaded || !userId || hasCheckedRole) return;
+      
+      try {
+        // First check Clerk metadata for role
+        const userMetadata = user?.unsafeMetadata?.role;
+        if (userMetadata) {
+          setHasCheckedRole(true);
+          // Don't redirect if we're already on a dashboard path
+          const currentPath = window.location.pathname;
+          if (currentPath === "/" || currentPath === "/sign-up" || currentPath === "/sign-in") {
+            if (userMetadata === "student") {
+              router.push("/classrooms/student");
+            } else if (userMetadata === "professor" || userMetadata === "admin") {
+              router.push("/classrooms/prof/dashboard");
+            }
+          }
+          return;
+        }
+
+        const res = await fetch(`/api/users/check-role?clerkId=${userId}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        
+        if (!data.exists || !data.role) {
+          setShowRoleSelector(true);
+        } else if (data.redirectPath) {
+          // Only redirect if we're on the home page or auth pages
+          const currentPath = window.location.pathname;
+          if (currentPath === "/" || currentPath === "/sign-up" || currentPath === "/sign-in") {
+            router.push(data.redirectPath);
+          }
+        }
+        setHasCheckedRole(true);
+      } catch (error) {
+        console.error("Failed to check user role:", error);
+      }
+    }
+    
+    // Run immediately when component mounts or auth state changes
+    if (isLoaded) {
+      checkUserRole();
+    }
+    
+    return () => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isSignedIn, userId, isLoaded, router, hasCheckedRole, user]);
+
+  // Reset checked state when user signs out
+  useEffect(() => {
+    if (!isSignedIn) {
+      setHasCheckedRole(false);
+      setShowRoleSelector(false);
+    }
+  }, [isSignedIn]);
+
+  const handleRoleSubmit = async (role: 'student' | 'professor') => {
+    if (!userId || !user?.emailAddresses[0]?.emailAddress) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/users/update-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user role in database');
+      }
+
+      // Update Clerk user metadata
+      await user?.update({
+        unsafeMetadata: { role },
+      });
+
+      setShowRoleSelector(false);
+      setHasCheckedRole(true); // Prevent immediate re-check
+      
+      // Redirect based on role
+      if (role === 'student') {
+        router.push("/classrooms/student");
+      } else {
+        router.push("/classrooms/prof/dashboard");
+      }
+    } catch (err) {
+      console.error("Error setting up account:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <nav className="fixed w-full bg-white/95 backdrop-blur-sm z-50 shadow">
@@ -66,6 +178,42 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Role selector dialog */}
+      {showRoleSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Select Your Role</h3>
+            <p className="text-gray-600 mb-4">
+              Please select your role to continue using TrainTrackDesk.
+            </p>
+            
+            <div className="space-y-4 mb-6">
+              <button
+                onClick={() => handleRoleSubmit('student')}
+                disabled={isSubmitting}
+                className="w-full p-3 border border-gray-300 rounded-md flex items-center hover:bg-blue-50 hover:border-blue-300 transition-colors"
+              >
+                <span>Student</span>
+              </button>
+              
+              <button
+                onClick={() => handleRoleSubmit('professor')}
+                disabled={isSubmitting}
+                className="w-full p-3 border border-gray-300 rounded-md flex items-center hover:bg-blue-50 hover:border-blue-300 transition-colors"
+              >
+                <span>Professor/Supervisor</span>
+              </button>
+            </div>
+            
+            {isSubmitting && (
+              <div className="text-center text-blue-600">
+                Setting up your account...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

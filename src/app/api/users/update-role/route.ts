@@ -1,3 +1,6 @@
+// This file is no longer needed as we've removed role management
+// You can safely delete this file
+
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
@@ -8,40 +11,59 @@ export async function POST(req: Request) {
   try {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
-      return new Response("Unauthorized", { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const { role } = await req.json();
-    if (!role || !["student", "professor", "admin"].includes(role)) {
-      return new Response("Invalid role", { status: 400 });
+    if (!role || !["student", "professor"].includes(role)) {
+      return NextResponse.json({ message: "Invalid role" }, { status: 400 });
     }
 
-    // Update user role in database
-    await db
-      .update(users)
-      .set({ role })
-      .where(eq(users.clerkId, clerkUserId));
-    
-    // Get the user's database ID
-    const userRecords = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.clerkId, clerkUserId));
-    
-    const userRecord = userRecords[0];
+    // Check if user exists first
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkUserId),
+    });
 
-    // Log the activity
-    if (userRecord) {
-      await db.insert(activities).values({
-        type: "system",
-        action: `User role updated to ${role}`,
-        userId: userRecord.id,
+    if (existingUser) {
+      // Update existing user
+      await db
+        .update(users)
+        .set({ 
+          role,
+          updatedAt: new Date()
+        })
+        .where(eq(users.clerkId, clerkUserId));
+    } else {
+      // Create new user
+      await db.insert(users).values({
+        clerkId: clerkUserId,
+        email: "", // Will be updated later when available
+        role,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
 
-    return NextResponse.json({ success: true });
+    // Log the activity
+    await db.insert(activities).values({
+      type: "system",
+      action: `User role ${existingUser ? 'updated to' : 'set as'} ${role}`,
+      userId: existingUser?.id,
+      createdAt: new Date(),
+    });
+
+    // Return success with redirect path
+    const redirectPath = role === "student" ? "/classrooms/student" : "/classrooms/admin/dashboard";
+    return NextResponse.json({ 
+      success: true,
+      redirectPath,
+      role 
+    });
   } catch (error) {
     console.error("Error updating user role:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to update role", error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

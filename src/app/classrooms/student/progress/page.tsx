@@ -1,11 +1,139 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+'use client';
 
-export default async function ProgressPage() {
-  const { userId } = await auth();
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from 'date-fns';
+import { Loader2 } from 'lucide-react';
+
+export default function ProgressPage() {
+  const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [timeEntries, setTimeEntries] = useState([]);
+  const [totalHours, setTotalHours] = useState(0);
+  const [requiredHours, setRequiredHours] = useState(500); // Default required hours
+  const [tasks, setTasks] = useState([]);
+  const [classrooms, setClassrooms] = useState([]);
+  const [selectedClassroom, setSelectedClassroom] = useState(null);
   
-  if (!userId) {
-    redirect("/sign-in");
+  // Check authentication
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Fetch student's classrooms
+  useEffect(() => {
+    if (!isSignedIn) return;
+    
+    async function fetchClassrooms() {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/classrooms');
+        const data = await response.json();
+        setClassrooms(data.classrooms || []);
+        if (data.classrooms && data.classrooms.length > 0) {
+          setSelectedClassroom(data.classrooms[0].id);
+        }
+      } catch (error) {
+        console.error('Error fetching classrooms:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchClassrooms();
+  }, [isSignedIn]);
+
+  // Fetch time entries when classroom is selected
+  useEffect(() => {
+    if (!selectedClassroom) return;
+    
+    async function fetchTimeEntries() {
+      setLoading(true);
+      try {
+        // Fetch all time entries for selected classroom
+        const response = await fetch(`/api/classrooms/timeEntries?classroomId=${selectedClassroom}`);
+        const data = await response.json();
+        setTimeEntries(data.timeEntries || []);
+        
+        // Calculate total hours
+        const total = (data.timeEntries || []).reduce((sum, entry) => sum + entry.hours, 0);
+        setTotalHours(total);
+      } catch (error) {
+        console.error('Error fetching time entries:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchTimeEntries();
+    
+    // Todo: Fetch tasks when API is available
+    // For now, use mock data
+    setTasks([
+      { id: 1, title: 'Complete orientation', status: 'completed' },
+      { id: 2, title: 'Submit weekly report', status: 'completed' },
+      { id: 3, title: 'Project milestone 1', status: 'completed' },
+      { id: 4, title: 'Mid-term evaluation', status: 'in_progress' },
+      { id: 5, title: 'Project milestone 2', status: 'pending' },
+      { id: 6, title: 'Final presentation', status: 'pending' },
+    ]);
+  }, [selectedClassroom]);
+
+  // Generate calendar days for attendance tracking
+  const renderAttendanceCalendar = () => {
+    // Get current month
+    const currentDate = new Date();
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    // Check which days have time entries
+    const daysWithEntries = timeEntries.reduce((acc, entry) => {
+      const entryDate = parseISO(entry.date);
+      // Only include days in the current month
+      if (isSameMonth(entryDate, currentDate)) {
+        const day = entryDate.getDate();
+        acc[day] = true;
+      }
+      return acc;
+    }, {});
+    
+    // Return array of numbers 1-30 (days of month)
+    return Array.from({ length: days.length }, (_, i) => {
+      const day = i + 1;
+      const hasEntry = daysWithEntries[day] || false;
+      
+      return (
+        <div 
+          key={i} 
+          className={`aspect-square rounded-md flex items-center justify-center text-sm ${
+            hasEntry
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-gray-100 text-gray-400'
+          }`}
+        >
+          {day}
+        </div>
+      );
+    });
+  };
+
+  // Count completed tasks
+  const completedTasks = tasks.filter(task => task.status === 'completed').length;
+
+  // Calculate progress percentage
+  const progressPercentage = Math.min(Math.round((totalHours / requiredHours) * 100), 100);
+
+  if (!isLoaded) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
   }
 
   return (
@@ -17,49 +145,98 @@ export default async function ProgressPage() {
         </p>
       </div>
       
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Overall Progress</h2>
-        <div className="w-full bg-gray-200 rounded-full h-4 mb-6">
-          <div className="bg-blue-600 h-4 rounded-full" style={{ width: '25%' }}></div>
+      {loading ? (
+        <div className="h-60 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-md font-medium mb-2">Hours Completed</h3>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold">125</span>
-              <span className="text-gray-500 mb-1">/ 500 hours</span>
+      ) : (
+        <>
+          {classrooms.length === 0 ? (
+            <div className="bg-white shadow rounded-lg p-8 text-center">
+              <p className="text-gray-500">You are not assigned to any company yet</p>
             </div>
-          </div>
-          
-          <div>
-            <h3 className="text-md font-medium mb-2">Tasks Completed</h3>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold">6</span>
-              <span className="text-gray-500 mb-1">/ 24 tasks</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Attendance Summary</h2>
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 30 }, (_, i) => (
-            <div 
-              key={i} 
-              className={`aspect-square rounded-md flex items-center justify-center text-sm ${
-                [1, 2, 3, 5, 8, 9].includes(i + 1) 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-400'
-              }`}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
-        <p className="text-sm text-gray-500 mt-4">Green indicates days with recorded hours</p>
-      </div>
+          ) : (
+            <>
+              {selectedClassroom && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-medium">Overall Progress</h2>
+                    
+                    {classrooms.length > 1 && (
+                      <select
+                        value={selectedClassroom}
+                        onChange={(e) => setSelectedClassroom(e.target.value)}
+                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        {classrooms.map((classroom) => (
+                          <option key={classroom.id} value={classroom.id}>
+                            {classroom.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                  
+                  <div className="w-full bg-gray-200 rounded-full h-4 mb-6">
+                    <div
+                      className="bg-blue-600 h-4 rounded-full"
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-md font-medium mb-2">Hours Completed</h3>
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-bold">{totalHours}</span>
+                        <span className="text-gray-500 mb-1">/ {requiredHours} hours</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-md font-medium mb-2">Tasks Completed</h3>
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-bold">{completedTasks}</span>
+                        <span className="text-gray-500 mb-1">/ {tasks.length} tasks</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4">Attendance Summary</h2>
+                <div className="grid grid-cols-7 gap-2">
+                  {renderAttendanceCalendar()}
+                </div>
+                <p className="text-sm text-gray-500 mt-4">Green indicates days with recorded hours</p>
+              </div>
+              
+              <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4">Task Progress</h2>
+                <div className="space-y-4">
+                  {tasks.length > 0 ? (
+                    tasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between border-b pb-3">
+                        <div className="flex items-center">
+                          <div className={`w-3 h-3 rounded-full mr-3 ${
+                            task.status === 'completed' ? 'bg-green-500' :
+                            task.status === 'in_progress' ? 'bg-yellow-500' : 'bg-gray-300'
+                          }`}></div>
+                          <span>{task.title}</span>
+                        </div>
+                        <span className="text-sm text-gray-500 capitalize">{task.status.replace('_', ' ')}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">No tasks assigned yet</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }

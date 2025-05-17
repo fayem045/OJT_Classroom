@@ -30,7 +30,7 @@ export default function ClassroomNavbar() {
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
             <div className="flex flex-col items-center">
               <h1 className="text-gray-800 font-semibold text-lg">
-                {role === 'admin' ? 'System Administration' :
+                {role === 'admin' ? 'Professor Administration' :
                  role === 'professor' ? 'Professor Dashboard' :
                  'Student Dashboard'}
               </h1>

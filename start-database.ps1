@@ -4,9 +4,9 @@ $dbUrl = [System.Uri]$env:DATABASE_URL
 
 # Parse connection details
 $dbPassword = $dbUrl.UserInfo.Split(':')[1]
-$dbPort = $dbUrl.Port
 $dbName = $dbUrl.Segments[1].TrimEnd('/')
 $containerName = "$dbName-postgres"
+$port = 5432
 
 # Check if container exists
 $containerExists = docker ps -a --filter "name=$containerName" --format '{{.Names}}' | Select-String $containerName
@@ -19,7 +19,7 @@ if ($containerExists) {
     docker run --name $containerName `
         -e POSTGRES_PASSWORD=$dbPassword `
         -e POSTGRES_DB=$dbName `
-        -p ${dbPort}:5432 `
+        -p ${port}:5432 `
         -d postgres:15
 }
 

@@ -16,14 +16,7 @@ export function RoleSelection() {
     setIsLoading(true);
 
     try {
-      // Update Clerk user metadata
-      await user?.update({
-        unsafeMetadata: {
-          role: role,
-        },
-      });
-
-      // Update database
+      // First update the database
       const response = await fetch('/api/users/update-role', {
         method: 'POST',
         headers: {
@@ -33,18 +26,41 @@ export function RoleSelection() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update user role in database');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user role in database');
       }
 
-      // Direct routing based on role - use window.location for immediate navigation
-      if (role === 'student') {
-        window.location.href = "/classrooms/student";
+      const data = await response.json();
+
+      // Then update Clerk user metadata
+      try {
+        await user?.update({
+          unsafeMetadata: {
+            role: role,
+          },
+        });
+      } catch (metadataError) {
+        console.error("Error updating Clerk metadata:", metadataError);
+        // Continue with redirection even if metadata update fails
+      }
+
+      // Wait a moment to ensure all updates are complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Use router.push for navigation
+      if (data.redirectPath) {
+        router.push(data.redirectPath);
       } else {
-        window.location.href = "/classrooms/admin";
+        // Fallback redirect paths
+        if (role === 'student') {
+          router.push("/classrooms/student");
+        } else {
+          router.push("/classrooms/prof/dashboard");
+        }
       }
     } catch (error) {
       console.error("Error setting role:", error);
-      alert("Failed to set role. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to set role. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +115,7 @@ export function RoleSelection() {
 
             <div 
               className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                role === "professor" || role === "admin" 
+                role === "professor"
                   ? "border-blue-600 bg-blue-50" 
                   : "border-gray-200 hover:border-blue-300"
               }`}
@@ -110,14 +126,14 @@ export function RoleSelection() {
                 id="professor"
                 name="role"
                 value="professor"
-                checked={role === "professor" || role === "admin"}
+                checked={role === "professor"}
                 onChange={(e) => setRole(e.target.value)}
                 className="hidden"
               />
               <label htmlFor="professor" className="cursor-pointer">
                 <div className="flex flex-col items-center text-center space-y-2">
-                  <span className={`font-medium ${role === "professor" || role === "admin" ? "text-blue-600" : "text-gray-700"}`}>
-                    Professor/Admin
+                  <span className={`font-medium ${role === "professor" ? "text-blue-600" : "text-gray-700"}`}>
+                    Professor
                   </span>
                   <p className="text-sm text-gray-500">Supervise, evaluate & manage system</p>
                 </div>
