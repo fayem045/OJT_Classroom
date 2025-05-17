@@ -5,16 +5,35 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Loader2, FileText, Upload, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
+interface Report {
+  id: number;
+  title: string;
+  dueDate: string;
+  status: 'pending' | 'submitted' | 'approved' | 'rejected';
+  description: string;
+  submissionUrl?: string;
+}
+
+interface Classroom {
+  id: number;
+  name: string;
+  description: string;
+  professorId: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function ReportsPage() {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [reports, setReports] = useState([]);
-  const [classrooms, setClassrooms] = useState([]);
-  const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
   const [submissionUrl, setSubmissionUrl] = useState('');
-  const [selectedReportId, setSelectedReportId] = useState(null);
+  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
   const [message, setMessage] = useState({ type: '', content: '' });
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   
@@ -36,7 +55,7 @@ export default function ReportsPage() {
         const data = await response.json();
         setClassrooms(data.classrooms || []);
         if (data.classrooms && data.classrooms.length > 0) {
-          setSelectedClassroom(data.classrooms[0].id);
+          setSelectedClassroom(Number(data.classrooms[0].id));
         }
       } catch (error) {
         console.error('Error fetching classrooms:', error);
@@ -62,7 +81,7 @@ export default function ReportsPage() {
         // setReports(data.reports || []);
         
         // Mock data for demonstration
-        const mockReports = [
+        const mockReports: Report[] = [
           {
             id: 1,
             title: "Weekly Progress Report",
@@ -98,7 +117,7 @@ export default function ReportsPage() {
   }, [selectedClassroom]);
 
   // Handle report submission
-  const submitReport = async (e) => {
+  const submitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!submissionUrl) {
@@ -161,7 +180,7 @@ export default function ReportsPage() {
   };
 
   // Open the submission modal
-  const openSubmitModal = (reportId) => {
+  const openSubmitModal = (reportId: number) => {
     setSelectedReportId(reportId);
     setShowSubmitModal(true);
   };
@@ -174,7 +193,7 @@ export default function ReportsPage() {
   };
 
   // Get status icon
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: Report['status']) => {
     switch (status) {
       case 'submitted':
       case 'approved':
@@ -201,7 +220,7 @@ export default function ReportsPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
         <p className="text-gray-500">
-          View and submit your OJT reports and documentation
+          View and submit your required reports
         </p>
       </div>
       
@@ -223,100 +242,102 @@ export default function ReportsPage() {
             </div>
           ) : (
             <>
-              <div className="bg-white shadow rounded-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-medium">Required Reports</h2>
+              {selectedClassroom && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-medium">Required Reports</h2>
+                    
+                    {classrooms.length > 1 && (
+                      <select
+                        value={selectedClassroom}
+                        onChange={(e) => setSelectedClassroom(e.target.value ? Number(e.target.value) : null)}
+                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        {classrooms.map((classroom) => (
+                          <option key={classroom.id} value={classroom.id}>
+                            {classroom.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                   
-                  {classrooms.length > 1 && (
-                    <select
-                      value={selectedClassroom}
-                      onChange={(e) => setSelectedClassroom(e.target.value)}
-                      className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    >
-                      {classrooms.map((classroom) => (
-                        <option key={classroom.id} value={classroom.id}>
-                          {classroom.name}
-                        </option>
-                      ))}
-                    </select>
+                  {reports.length > 0 ? (
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Report
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Due Date
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {reports.map((report) => (
+                            <tr key={report.id}>
+                              <td className="px-6 py-4">
+                                <div className="flex items-start">
+                                  <FileText className="flex-shrink-0 h-5 w-5 text-gray-400 mr-3" />
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-900">{report.title}</div>
+                                    {report.description && <div className="text-xs text-gray-500 mt-1">{report.description}</div>}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-500">{new Date(report.dueDate).toLocaleDateString()}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  {getStatusIcon(report.status)}
+                                  <span className={`ml-1.5 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    ${report.status === 'submitted' || report.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                                      report.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                    {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {report.status === 'pending' ? (
+                                  <button 
+                                    onClick={() => openSubmitModal(report.id)} 
+                                    className="text-blue-600 hover:text-blue-900 flex items-center"
+                                  >
+                                    <Upload className="h-4 w-4 mr-1" />
+                                    Submit
+                                  </button>
+                                ) : (
+                                  <a 
+                                    href={report.submissionUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-900"
+                                  >
+                                    View
+                                  </a>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No reports required at this time</p>
+                    </div>
                   )}
                 </div>
-                
-                {reports.length > 0 ? (
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Report
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Due Date
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {reports.map((report) => (
-                          <tr key={report.id}>
-                            <td className="px-6 py-4">
-                              <div className="flex items-start">
-                                <FileText className="flex-shrink-0 h-5 w-5 text-gray-400 mr-3" />
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900">{report.title}</div>
-                                  {report.description && <div className="text-xs text-gray-500 mt-1">{report.description}</div>}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">{new Date(report.dueDate).toLocaleDateString()}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                {getStatusIcon(report.status)}
-                                <span className={`ml-1.5 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                  ${report.status === 'submitted' || report.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                                    report.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                  {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {report.status === 'pending' ? (
-                                <button 
-                                  onClick={() => openSubmitModal(report.id)} 
-                                  className="text-blue-600 hover:text-blue-900 flex items-center"
-                                >
-                                  <Upload className="h-4 w-4 mr-1" />
-                                  Submit
-                                </button>
-                              ) : (
-                                <a 
-                                  href={report.submissionUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-900"
-                                >
-                                  View
-                                </a>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No reports required at this time</p>
-                  </div>
-                )}
-              </div>
+              )}
               
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-lg font-medium mb-4">Final Documentation</h2>

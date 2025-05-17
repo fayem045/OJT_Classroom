@@ -6,11 +6,14 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+type PageParams = Promise<{ id: string }>;
+
 export default async function StudentEditPage({
   params,
 }: {
-  params: { id: string };
+  params: PageParams;
 }) {
+  const { id } = await params;
   const { userId } = await auth();
   
   if (!userId) {
@@ -29,7 +32,7 @@ export default async function StudentEditPage({
   // Try to fetch real student data if available
   let student;
   try {
-    const studentId = parseInt(params.id);
+    const studentId = parseInt(id);
     
     if (!isNaN(studentId)) {
       student = await db.query.users.findFirst({
@@ -50,9 +53,8 @@ export default async function StudentEditPage({
   };
 
   // Get mock student data for display
-  const studentId = params.id;
-  const mockStudentData = studentId in mockStudents 
-    ? mockStudents[studentId as keyof typeof mockStudents] 
+  const mockStudentData = id in mockStudents 
+    ? mockStudents[id as keyof typeof mockStudents] 
     : mockStudents['1'];
     
   // For a real implementation, we would split the name into first and last name
@@ -63,7 +65,7 @@ export default async function StudentEditPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href={`/classrooms/prof/students/${params.id}/view`} className="p-2 rounded-full hover:bg-gray-100">
+        <Link href={`/classrooms/prof/students/${id}/view`} className="p-2 rounded-full hover:bg-gray-100">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
@@ -76,7 +78,7 @@ export default async function StudentEditPage({
       
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="p-6">
-          <form action={`/api/students/${params.id}/update`} method="POST" className="space-y-6">
+          <form action={`/api/students/${id}/update`} method="POST" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label 
@@ -191,7 +193,7 @@ export default async function StudentEditPage({
             <div className="pt-4 border-t border-gray-200">
               <div className="flex justify-end">
                 <Link 
-                  href={`/classrooms/prof/students/${params.id}/view`}
+                  href={`/classrooms/prof/students/${id}/view`}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3"
                 >
                   Cancel

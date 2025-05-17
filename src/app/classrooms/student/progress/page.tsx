@@ -6,16 +6,47 @@ import { useRouter } from 'next/navigation';
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 
+interface TimeEntry {
+  id: number;
+  date: string;
+  hours: number;
+  description: string;
+  classroomId: number;
+  studentId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Classroom {
+  id: number;
+  name: string;
+  description: string;
+  professorId: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Task {
+  id: number;
+  title: string;
+  status: 'completed' | 'in_progress' | 'pending';
+}
+
+interface DayEntries {
+  [key: number]: boolean;
+}
+
 export default function ProgressPage() {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [timeEntries, setTimeEntries] = useState([]);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [totalHours, setTotalHours] = useState(0);
   const [requiredHours, setRequiredHours] = useState(500); // Default required hours
-  const [tasks, setTasks] = useState([]);
-  const [classrooms, setClassrooms] = useState([]);
-  const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
   
   // Check authentication
   useEffect(() => {
@@ -35,7 +66,7 @@ export default function ProgressPage() {
         const data = await response.json();
         setClassrooms(data.classrooms || []);
         if (data.classrooms && data.classrooms.length > 0) {
-          setSelectedClassroom(data.classrooms[0].id);
+          setSelectedClassroom(Number(data.classrooms[0].id));
         }
       } catch (error) {
         console.error('Error fetching classrooms:', error);
@@ -60,7 +91,7 @@ export default function ProgressPage() {
         setTimeEntries(data.timeEntries || []);
         
         // Calculate total hours
-        const total = (data.timeEntries || []).reduce((sum, entry) => sum + entry.hours, 0);
+        const total = (data.timeEntries || []).reduce((sum: number, entry: TimeEntry) => sum + entry.hours, 0);
         setTotalHours(total);
       } catch (error) {
         console.error('Error fetching time entries:', error);
@@ -92,7 +123,7 @@ export default function ProgressPage() {
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
     
     // Check which days have time entries
-    const daysWithEntries = timeEntries.reduce((acc, entry) => {
+    const daysWithEntries = timeEntries.reduce<DayEntries>((acc, entry) => {
       const entryDate = parseISO(entry.date);
       // Only include days in the current month
       if (isSameMonth(entryDate, currentDate)) {
@@ -165,7 +196,7 @@ export default function ProgressPage() {
                     {classrooms.length > 1 && (
                       <select
                         value={selectedClassroom}
-                        onChange={(e) => setSelectedClassroom(e.target.value)}
+                        onChange={(e) => setSelectedClassroom(e.target.value ? Number(e.target.value) : null)}
                         className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
                         {classrooms.map((classroom) => (

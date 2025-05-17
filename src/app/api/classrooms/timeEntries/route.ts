@@ -124,25 +124,25 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Build the base query conditions
-    let conditions = eq(timeEntries.studentId, user.id);
+    // Build the query conditions
+    const conditions = [eq(timeEntries.studentId, user.id)];
     
     // Add optional filters
     if (classroomId) {
-      conditions = and(conditions, eq(timeEntries.classroomId, parseInt(classroomId)));
+      conditions.push(eq(timeEntries.classroomId, parseInt(classroomId)));
     }
     
     if (startDate) {
-      conditions = and(conditions, sql`${timeEntries.date} >= ${startDate}`);
+      conditions.push(sql`${timeEntries.date} >= ${startDate}`);
     }
     
     if (endDate) {
-      conditions = and(conditions, sql`${timeEntries.date} <= ${endDate}`);
+      conditions.push(sql`${timeEntries.date} <= ${endDate}`);
     }
     
     // Execute the query
     const entries = await db.select().from(timeEntries)
-      .where(conditions)
+      .where(and(...conditions))
       .orderBy(desc(timeEntries.date));
 
     return NextResponse.json(

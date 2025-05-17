@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { users, classrooms } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
   try {
-    const { userId } = getAuth({ request: req });
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { userId } = getAuth({ request: req });
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(

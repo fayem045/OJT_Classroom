@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { reports, users, studentClassrooms, activities } from "~/server/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
+import { reportStatusEnum } from "~/server/db/schema";
 
 // GET - Get reports for the current student
 export async function GET(req: NextRequest) {
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
     // Get query parameters
     const url = new URL(req.url);
     const classroomId = url.searchParams.get("classroomId");
-    const status = url.searchParams.get("status");
+    const status = url.searchParams.get("status") as typeof reportStatusEnum.enumValues[number] | null;
 
     // Get the current user's database ID
     const user = await db.query.users.findFirst({
@@ -33,21 +34,21 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Build the base query conditions
-    let conditions = eq(reports.studentId, user.id);
+    // Build the query conditions
+    const conditions = [eq(reports.studentId, user.id)];
     
     // Add optional filters
     if (classroomId) {
-      conditions = and(conditions, eq(reports.classroomId, parseInt(classroomId)));
+      conditions.push(eq(reports.classroomId, parseInt(classroomId)));
     }
     
-    if (status) {
-      conditions = and(conditions, eq(reports.status, status));
+    if (status && reportStatusEnum.enumValues.includes(status)) {
+      conditions.push(eq(reports.status, status));
     }
     
     // Execute the query
     const studentReports = await db.select().from(reports)
-      .where(conditions)
+      .where(and(...conditions))
       .orderBy(desc(reports.dueDate));
 
     return NextResponse.json(

@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email } = await req.json();
+    const { email } = await request.json();
 
     if (!email) {
       return NextResponse.json(

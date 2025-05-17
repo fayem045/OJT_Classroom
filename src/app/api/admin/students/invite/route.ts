@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { db } from '~/server/db';
 import { users } from '~/server/db/schema';
 import { eq } from 'drizzle-orm';
@@ -50,7 +49,8 @@ export async function POST(req: Request) {
     }
 
     // Create invitation in Clerk
-    const invitation = await clerkClient.createInvitation({
+    const client = await clerkClient();
+    const invitation = await client.invitations.createInvitation({
       emailAddress: email,
       redirectUrl: `${process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}?redirect_url=/classrooms/student`,
       publicMetadata: {

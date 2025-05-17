@@ -17,7 +17,7 @@ export const createTable = pgTableCreator(
 );
 
 // Enums
-export const userRoleEnum = pgEnum('user_role', ['student', 'professor']);
+export const userRoleEnum = pgEnum('user_role', ['student', 'professor', 'admin']);
 export const activityTypeEnum = pgEnum('activity_type', ['student', 'professor', 'company', 'system']);
 export const reportStatusEnum = pgEnum('report_status', ['pending', 'submitted', 'reviewed', 'approved', 'rejected']);
 export const taskStatusEnum = pgEnum('task_status', ['pending', 'in_progress', 'completed', 'overdue']);

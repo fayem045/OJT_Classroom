@@ -1,9 +1,12 @@
 import EditCompanyClassroomClient from './EditCompanyClassroomClient';
 
+type PageParams = Promise<{ id: string }>;
+
 export default async function EditCompanyClassroomPage({
   params,
 }: {
-  params: { id: string };
+  params: PageParams;
 }) {
-  return <EditCompanyClassroomClient id={params.id} />;
+  const { id } = await params;
+  return <EditCompanyClassroomClient id={id} />;
 } 

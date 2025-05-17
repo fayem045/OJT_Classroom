@@ -4,11 +4,15 @@ import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
+type PageParams = Promise<{ id: string }>;
+
 export default async function ClassroomDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: PageParams;
 }) {
+  const { id } = await params;
+  
   // Check authentication
   const { userId } = await auth();
   

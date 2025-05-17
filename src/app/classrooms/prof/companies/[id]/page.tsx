@@ -1,9 +1,12 @@
 import CompanyClassroomDetailsClient from './CompanyClassroomDetailsClient';
 
+type PageParams = Promise<{ id: string }>;
+
 export default async function CompanyClassroomDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: PageParams;
 }) {
-  return <CompanyClassroomDetailsClient id={params.id} />;
+  const { id } = await params;
+  return <CompanyClassroomDetailsClient id={id} />;
 } 

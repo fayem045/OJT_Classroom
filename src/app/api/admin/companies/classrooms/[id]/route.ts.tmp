@@ -1,25 +1,20 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { users, classrooms, studentClassrooms } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
-interface StudentEnrollment {
-  student: {
-    id: number;
-    email: string;
+export type ClassroomParams = {
+  params: {
+    id: string;
   };
-  progress: number;
-}
-
-type RouteParams = Promise<{ id: string }>;
+};
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: RouteParams }
-): Promise<void | NextResponse> {
+  { params }: ClassroomParams
+) {
   try {
-    const { id } = await params;
     const { userId } = await auth();
     
     if (!userId) {
@@ -38,9 +33,10 @@ export async function GET(
       return NextResponse.json(
         { message: "Only professors can view classroom details" },
         { status: 403 }
-      );    }
+      );
+    }
 
-    const classroomId = parseInt(id);
+    const classroomId = parseInt(params.id);
 
     // Get classroom details
     const classroom = await db.query.classrooms.findFirst({
@@ -96,10 +92,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: RouteParams }
-): Promise<void | NextResponse> {
+  { params }: ClassroomParams
+) {
   try {
-    const { id } = await params;
     const { userId } = await auth();
     
     if (!userId) {
@@ -119,8 +114,9 @@ export async function PUT(
         { message: "Only professors can update classrooms" },
         { status: 403 }
       );
-    }    
-    const classroomId = parseInt(id);
+    }
+
+    const classroomId = parseInt(params.id);
     const updates = await request.json();
 
     // Update classroom details
@@ -144,10 +140,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: RouteParams }
-): Promise<void | NextResponse> {
+  { params }: ClassroomParams
+) {
   try {
-    const { id } = await params;
     const { userId } = await auth();
     
     if (!userId) {
@@ -166,9 +161,10 @@ export async function DELETE(
       return NextResponse.json(
         { message: "Only professors can delete classrooms" },
         { status: 403 }
-      );    }
+      );
+    }
 
-    const classroomId = parseInt(id);
+    const classroomId = parseInt(params.id);
 
     // First delete all student enrollments
     await db.delete(studentClassrooms)
@@ -186,4 +182,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}

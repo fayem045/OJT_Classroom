@@ -170,7 +170,7 @@ async function createTables() {
     if (error instanceof Error) {
       console.error(`   ${error.message}`);
       if ('code' in error) {
-        console.error(`   Error code: ${(error as any).code}`);
+        console.error(`   Error code: ${error.code}`);
       }
     } else {
       console.error(error);

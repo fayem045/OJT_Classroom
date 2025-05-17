@@ -61,10 +61,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, description, startDate, endDate, maxStudents } = body;
+    const { name, description } = body;
 
     // Validate input
-    if (!name || !startDate || !endDate || !maxStudents) {
+    if (!name) {
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -103,9 +103,6 @@ export async function POST(req: Request) {
       description,
       professorId: adminUser.id,
       isActive: true,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      maxStudents,
     }).returning();
 
     return NextResponse.json(

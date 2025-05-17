@@ -1,15 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { users, classrooms } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
+type RouteParams = Promise<{ id: string }>;
+
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const { userId } = await auth();
+    const { id: paramId } = await params;
 
     if (!userId) {
       return NextResponse.json(
@@ -18,7 +21,7 @@ export async function GET(
       );
     }
 
-    const id = parseInt(params.id);
+    const id = parseInt(paramId);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -78,11 +81,12 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const { userId } = await auth();
+    const { id: paramId } = await params;
 
     if (!userId) {
       return NextResponse.json(
@@ -91,7 +95,7 @@ export async function PUT(
       );
     }
 
-    const id = parseInt(params.id);
+    const id = parseInt(paramId);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -112,7 +116,7 @@ export async function PUT(
       );
     }
 
-    const { name, description } = await req.json();
+    const { name, description } = await request.json();
 
     if (!name || !description) {
       return NextResponse.json(
@@ -141,11 +145,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: RouteParams }
 ) {
   try {
     const { userId } = await auth();
+    const { id: paramId } = await params;
 
     if (!userId) {
       return NextResponse.json(
@@ -154,7 +159,7 @@ export async function DELETE(
       );
     }
 
-    const id = parseInt(params.id);
+    const id = parseInt(paramId);
 
     if (isNaN(id)) {
       return NextResponse.json(

@@ -13,11 +13,14 @@ const mockReports = [
   { id: 3, title: "Daily Activity Log", date: "2025-05-15", status: "pending" },
 ];
 
+type PageParams = Promise<{ id: string }>;
+
 export default async function StudentViewPage({
   params,
 }: {
-  params: { id: string };
+  params: PageParams;
 }) {
+  const { id } = await params;
   const { userId } = await auth();
   
   if (!userId) {
@@ -36,7 +39,7 @@ export default async function StudentViewPage({
   // Try to fetch real student data if available
   let student;
   try {
-    const studentId = parseInt(params.id);
+    const studentId = parseInt(id);
     
     if (!isNaN(studentId)) {
       student = await db.query.users.findFirst({
@@ -57,9 +60,8 @@ export default async function StudentViewPage({
   };
 
   // Get mock student data for display
-  const studentId = params.id;
-  const mockStudentData = studentId in mockStudents 
-    ? mockStudents[studentId as keyof typeof mockStudents] 
+  const mockStudentData = id in mockStudents 
+    ? mockStudents[id as keyof typeof mockStudents] 
     : mockStudents['1'];
   
   return (
@@ -107,7 +109,7 @@ export default async function StudentViewPage({
             </div>
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
               <Link 
-                href={`/classrooms/prof/students/${params.id}/edit`}
+                href={`/classrooms/prof/students/${id}/edit`}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
               >
                 Edit Profile
@@ -200,25 +202,17 @@ export default async function StudentViewPage({
                           <div className="text-sm font-medium text-gray-900">{report.title}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{report.date}</div>
+                          <div className="text-sm text-gray-900">{report.date}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span 
-                            className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              report.status === 'approved' 
-                                ? 'bg-green-100 text-green-800' 
-                                : report.status === 'pending' 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            report.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {report.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            View
-                          </button>
+                          <Link href="#" className="text-blue-600 hover:text-blue-800">View</Link>
                         </td>
                       </tr>
                     ))}
