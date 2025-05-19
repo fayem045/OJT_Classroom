@@ -72,11 +72,11 @@ export async function POST(req: NextRequest) {
     // Determine redirect based on role
     let redirectUrl = "/";
     if (role === "student") {
-      redirectUrl = "/classrooms/student";
+      redirectUrl = "/";
     } else if (role === "professor") {
-      redirectUrl = "/classrooms/prof/dashboard";
+      redirectUrl = "/";
     } else if (role === "admin") {
-      redirectUrl = "/classrooms/admin/dashboard";
+      redirectUrl = "/";
     }
 
     return NextResponse.json(

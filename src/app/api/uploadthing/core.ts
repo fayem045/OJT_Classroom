@@ -1,45 +1,37 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { getAuth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 const f = createUploadthing();
 
-// FileRouter for your app, can contain multiple FileRoutes
+console.log("UploadThing core.ts loaded");
+
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
-    // Set permissions and file types for this FileRoute
-    .middleware(async ({ req }) => {
-      // This code runs on your server before upload
-      const auth = getAuth(req);
-
-      // If you throw, the user will not be able to upload
-      if (!auth.userId) throw new Error("Unauthorized");
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: auth.userId };
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return { uploadedBy: metadata.userId, fileUrl: file.url };
-    }),
-    
-  // Route for document uploads (PDF, DOCX)
   documentUploader: f({
-    "application/pdf": { maxFileSize: "16MB" },
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "16MB" },
+    "image": { maxFileSize: "4MB" },
+    "pdf": { maxFileSize: "16MB" },
+    "text": { maxFileSize: "16MB" }
   })
     .middleware(async ({ req }) => {
-      const auth = getAuth(req);
-      if (!auth.userId) throw new Error("Unauthorized");
-      return { userId: auth.userId };
+      console.log("UploadThing middleware running");
+      const { userId } = await auth();
+
+      if (!userId) {
+        console.log("UploadThing auth failed - no userId");
+        throw new Error("Unauthorized");
+      }
+
+      console.log("UploadThing auth successful, userId:", userId);
+      return { userId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Document upload complete for userId:", metadata.userId);
-      return { uploadedBy: metadata.userId, fileUrl: file.url };
+      console.log("UPLOAD COMPLETED:", file.url, "for user", metadata.userId);
+      console.log("New UPLOADTHING URL format:", file.url);
+
+      return {
+        uploadedBy: metadata.userId,
+        url: file.url
+      };
     }),
 } satisfies FileRouter;
 
-export type OurFileRouter = typeof ourFileRouter; 
+export type OurFileRouter = typeof ourFileRouter;

@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
     let redirectPath = null;
     if (dbUser?.role) {
       if (dbUser.role === "student") {
-        redirectPath = "/classrooms/student";
+        redirectPath = "/";
       } else if (dbUser.role === "professor" || dbUser.role === "admin") {
-        redirectPath = "/classrooms/admin/dashboard";
+        redirectPath = "/";
       }
     }
 

@@ -16,13 +16,12 @@ export function RoleSelection() {
     setIsLoading(true);
 
     try {
-      // First update the database
       const response = await fetch('/api/users/update-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({ role, email }),
       });
 
       if (!response.ok) {
@@ -32,7 +31,6 @@ export function RoleSelection() {
 
       const data = await response.json();
 
-      // Then update Clerk user metadata
       try {
         await user?.update({
           unsafeMetadata: {
@@ -41,23 +39,11 @@ export function RoleSelection() {
         });
       } catch (metadataError) {
         console.error("Error updating Clerk metadata:", metadataError);
-        // Continue with redirection even if metadata update fails
       }
 
-      // Wait a moment to ensure all updates are complete
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Use router.push for navigation
-      if (data.redirectPath) {
-        router.push(data.redirectPath);
-      } else {
-        // Fallback redirect paths
-        if (role === 'student') {
-          router.push("/classrooms/student");
-        } else {
-          router.push("/classrooms/prof/dashboard");
-        }
-      }
+      router.push("/");
     } catch (error) {
       console.error("Error setting role:", error);
       alert(error instanceof Error ? error.message : "Failed to set role. Please try again.");

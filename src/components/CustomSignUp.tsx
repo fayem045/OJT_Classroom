@@ -11,6 +11,16 @@ export function CustomSignUp() {
           formFieldInput: 'rounded-md border-gray-300',
           formFieldLabel: 'font-medium text-gray-700',
           card: 'rounded-xl shadow-lg',
+          rootBox: 'w-full',
+          header: 'hidden', 
+          headerTitle: 'hidden', 
+          headerSubtitle: 'hidden', 
+          navbar: 'hidden',
+          page: 'w-full flex justify-center items-center'
+        },
+        layout: {
+          logoPlacement: 'inside', 
+          socialButtonsVariant: 'iconButton'
         }
       }}
       path="/sign-up"
@@ -20,12 +30,4 @@ export function CustomSignUp() {
       afterSignUpUrl="/role-selection"
     />
   );
-}
-
-// Add a script to handle redirection
-if (typeof window !== 'undefined') {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('createdSessionId')) {
-    window.location.href = '/role-selection';
-  }
 }

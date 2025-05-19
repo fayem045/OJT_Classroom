@@ -1,7 +1,6 @@
 'use client';
 
 import { SignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 
 export function CustomSignIn() {
   return (
@@ -12,21 +11,23 @@ export function CustomSignIn() {
           formFieldInput: 'rounded-md border-gray-300',
           formFieldLabel: 'font-medium text-gray-700',
           card: 'rounded-xl shadow-lg',
+          rootBox: 'w-full',
+          header: 'hidden',
+          headerTitle: 'hidden',
+          headerSubtitle: 'hidden',
+          navbar: 'hidden',
+          page: 'w-full flex justify-center items-center'
+        },
+        layout: {
+          logoPlacement: 'inside',
+          socialButtonsVariant: 'iconButton'
         }
       }}
       path="/sign-in"
       signUpUrl="/sign-up"
       routing="path"
-      redirectUrl="/classrooms"
-      afterSignInUrl="/classrooms"
+      redirectUrl="/dashboard-redirect"
+      afterSignInUrl="/dashboard-redirect"
     />
   );
 }
-
-// Add a script to handle redirection
-if (typeof window !== 'undefined') {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('createdSessionId')) {
-    window.location.href = '/classrooms';
-  }
-} 

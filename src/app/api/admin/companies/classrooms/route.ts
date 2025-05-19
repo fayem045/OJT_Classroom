@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, description } = body;
+    const { name, description, startDate, endDate } = body;
 
     // Validate input
     if (!name) {
@@ -71,37 +71,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get the admin user
     const adminUser = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
     });
 
     if (!adminUser || adminUser.role !== "professor") {
       return NextResponse.json(
-        { message: "Only professors can create company classrooms" },
+        { message: "Only professors can create classrooms" },
         { status: 403 }
       );
     }
 
-    // Create company record
-    const [company] = await db.insert(companies).values({
-      name,
-      address: description, // Using description as address since it's not in the schema
-      isActive: true,
-    }).returning();
-
-    if (!company) {
-      return NextResponse.json(
-        { message: "Failed to create company" },
-        { status: 500 }
-      );
-    }
-
-    // Create classroom record
     const [classroom] = await db.insert(classrooms).values({
       name,
       description,
       professorId: adminUser.id,
+      startDate: startDate || null,  
+      endDate: endDate || null,      
       isActive: true,
     }).returning();
 
@@ -110,10 +96,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating company classroom:", error);
+    console.error("Error creating classroom:", error);
     return NextResponse.json(
-      { message: "Failed to create company classroom" },
+      { message: "Failed to create classroom" },
       { status: 500 }
     );
   }
-} 
+}

@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       // Create new user
       await db.insert(users).values({
         clerkId: clerkUserId,
-        email: "", // Will be updated later when available
+        email: email || "", // Will be updated later when available
         role,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     });
 
     // Return success with redirect path
-    const redirectPath = role === "student" ? "/classrooms/student" : "/classrooms/admin/dashboard";
+const redirectPath = "/";
     return NextResponse.json({ 
       success: true,
       redirectPath,

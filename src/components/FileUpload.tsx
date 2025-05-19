@@ -5,24 +5,26 @@ import { UploadButton, UploadDropzone } from "@uploadthing/react";
 import type { OurFileRouter } from "~/app/api/uploadthing/core";
 
 interface FileUploadProps {
-  endpoint: keyof OurFileRouter;
+  endpoint: keyof typeof import("~/app/api/uploadthing/core").ourFileRouter;
   onUploadComplete?: (url: string) => void;
+  onUploadBegin?: () => void;  
+  onUploadError?: (error: Error) => void;  
   className?: string;
+  isUploading?: boolean; 
 }
 
-// Check if UploadThing is configured
-const isUploadThingConfigured = process.env.NEXT_PUBLIC_UPLOADTHING_URL !== undefined;
 
 export const FileUpload = ({
   endpoint,
   onUploadComplete,
+  onUploadBegin,  
+  onUploadError, 
   className = "",
 }: FileUploadProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  
+  const isUploadThingConfigured = true;
+
   const handleComplete = useCallback(
-    (res: { fileUrl: string }[]) => {
-      setIsUploading(false);
+    (res: Array<{ fileUrl: string }>) => {
       if (res?.[0]?.fileUrl && onUploadComplete) {
         onUploadComplete(res[0].fileUrl);
       }
@@ -33,24 +35,33 @@ export const FileUpload = ({
   if (!isUploadThingConfigured) {
     return (
       <div className={`${className} p-4 border border-dashed rounded-md text-center`}>
-        <p className="text-gray-500">File uploads are disabled.</p>
-        <p className="text-sm text-gray-400">UploadThing is not configured.</p>
+        <p className="text-sm font-medium text-red-500">File uploads are disabled.</p>
+        <p className="text-xs text-gray-500 mt-1">UploadThing is not configured.</p>
       </div>
     );
   }
 
   return (
     <div className={className}>
-      {/* @ts-ignore - Type arguments issue */}
-      <UploadDropzone
-        endpoint={endpoint}
-        onUploadBegin={() => setIsUploading(true)}
-        onClientUploadComplete={handleComplete}
-        onUploadError={(error: Error) => {
-          setIsUploading(false);
-          console.error(`ERROR! ${error.message}`);
-        }}
-      />
+      <UploadDropzone<OurFileRouter>
+  endpoint={endpoint}
+  onUploadBegin={() => {
+    if (onUploadBegin) onUploadBegin();
+  }}
+  onClientUploadComplete={(res) => {
+    console.log("Upload completed in component:", res);
+    handleComplete(res);
+  }}
+  onUploadError={(error: Error) => {
+    if (onUploadError) onUploadError(error);
+  }}
+  config={{ mode: "auto" }}
+  appearance={{
+    label: 'text-gray-700',
+    allowedContent: 'text-gray-600',
+    button: 'bg-blue-600 text-white hover:bg-blue-700 p-3 cursor-pointer hidden'
+  }}
+/>
     </div>
   );
 };
@@ -61,16 +72,22 @@ export const FileUploadButton = ({
   className = "",
 }: FileUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
-  
-  const handleComplete = useCallback(
-    (res: { fileUrl: string }[]) => {
-      setIsUploading(false);
-      if (res?.[0]?.fileUrl && onUploadComplete) {
-        onUploadComplete(res[0].fileUrl);
+  const isUploadThingConfigured = true;
+
+const handleComplete = useCallback(
+  (res: any[]) => {
+    console.log("Upload completed in component:", res);
+    if (res?.[0]) {
+      const fileUrl = res[0].serverData?.url || res[0].url;
+      console.log("Extracted URL:", fileUrl);
+      
+      if (fileUrl && onUploadComplete) {
+        onUploadComplete(fileUrl);
       }
-    },
-    [onUploadComplete]
-  );
+    }
+  },
+  [onUploadComplete]
+);
 
   if (!isUploadThingConfigured) {
     return (
@@ -82,16 +99,25 @@ export const FileUploadButton = ({
 
   return (
     <div className={className}>
-      {/* @ts-ignore - Type arguments issue */}
-      <UploadButton
+      <UploadButton<OurFileRouter>
         endpoint={endpoint}
-        onUploadBegin={() => setIsUploading(true)}
-        onClientUploadComplete={handleComplete}
+        onBeforeUploadBegin={(files) => {
+          console.log("Before upload begin:", files);
+          return files;
+        }}
+        onUploadBegin={() => {
+          console.log("Upload starting...");
+          setIsUploading(true);
+        }}
+        onClientUploadComplete={(res) => {
+          console.log("Upload completed, response:", res);
+          handleComplete(res);
+        }}
         onUploadError={(error: Error) => {
+          console.error("Upload error:", error);
           setIsUploading(false);
-          console.error(`ERROR! ${error.message}`);
         }}
       />
     </div>
   );
-}; 
+};

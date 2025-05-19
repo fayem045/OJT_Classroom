@@ -1,10 +1,10 @@
 {
-  "id": "88e6bd2a-80c2-4a38-8bf2-3eaa70b94e55",
-  "prevId": "8a6e1b6c-f009-4a61-b998-7525cc36dd67",
-  "version": "5",
-  "dialect": "pg",
+  "id": "ac30211c-dfcb-4a1d-b8b3-56c895848898",
+  "prevId": "0a4c18db-bf11-422d-a37a-c9c4ed7d5123",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "ojtclassroom-finalproj_activity": {
+    "public.ojtclassroom-finalproj_activity": {
       "name": "ojtclassroom-finalproj_activity",
       "schema": "",
       "columns": {
@@ -17,6 +17,7 @@
         "type": {
           "name": "type",
           "type": "activity_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -64,9 +65,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ojtclassroom-finalproj_classroom": {
+    "public.ojtclassroom-finalproj_classroom": {
       "name": "ojtclassroom-finalproj_classroom",
       "schema": "",
       "columns": {
@@ -107,6 +111,12 @@
           "notNull": true,
           "default": true
         },
+        "invite_code": {
+          "name": "invite_code",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -139,9 +149,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ojtclassroom-finalproj_company": {
+    "public.ojtclassroom-finalproj_company": {
       "name": "ojtclassroom-finalproj_company",
       "schema": "",
       "columns": {
@@ -188,9 +201,143 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ojtclassroom-finalproj_student_classroom": {
+    "public.ojtclassroom-finalproj_report": {
+      "name": "ojtclassroom-finalproj_report",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "report_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'daily'"
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroom_id": {
+          "name": "classroom_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "report_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "submission_url": {
+          "name": "submission_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_template": {
+          "name": "is_template",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "parent_template_id": {
+          "name": "parent_template_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ojtclassroom-finalproj_report_classroom_id_ojtclassroom-finalproj_classroom_id_fk": {
+          "name": "ojtclassroom-finalproj_report_classroom_id_ojtclassroom-finalproj_classroom_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_report",
+          "tableTo": "ojtclassroom-finalproj_classroom",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ojtclassroom-finalproj_report_student_id_ojtclassroom-finalproj_user_id_fk": {
+          "name": "ojtclassroom-finalproj_report_student_id_ojtclassroom-finalproj_user_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_report",
+          "tableTo": "ojtclassroom-finalproj_user",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ojtclassroom-finalproj_student_classroom": {
       "name": "ojtclassroom-finalproj_student_classroom",
       "schema": "",
       "columns": {
@@ -214,10 +361,10 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "'active'"
+          "default": 0
         },
         "created_at": {
           "name": "created_at",
@@ -264,9 +411,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ojtclassroom-finalproj_system_metrics": {
+    "public.ojtclassroom-finalproj_system_metrics": {
       "name": "ojtclassroom-finalproj_system_metrics",
       "schema": "",
       "columns": {
@@ -305,9 +455,214 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ojtclassroom-finalproj_user": {
+    "public.ojtclassroom-finalproj_task": {
+      "name": "ojtclassroom-finalproj_task",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "classroom_id": {
+          "name": "classroom_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "task_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "priority": {
+          "name": "priority",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'medium'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ojtclassroom-finalproj_task_classroom_id_ojtclassroom-finalproj_classroom_id_fk": {
+          "name": "ojtclassroom-finalproj_task_classroom_id_ojtclassroom-finalproj_classroom_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_task",
+          "tableTo": "ojtclassroom-finalproj_classroom",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ojtclassroom-finalproj_task_student_id_ojtclassroom-finalproj_user_id_fk": {
+          "name": "ojtclassroom-finalproj_task_student_id_ojtclassroom-finalproj_user_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_task",
+          "tableTo": "ojtclassroom-finalproj_user",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ojtclassroom-finalproj_time_entry": {
+      "name": "ojtclassroom-finalproj_time_entry",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "classroom_id": {
+          "name": "classroom_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hours": {
+          "name": "hours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_approved": {
+          "name": "is_approved",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ojtclassroom-finalproj_time_entry_student_id_ojtclassroom-finalproj_user_id_fk": {
+          "name": "ojtclassroom-finalproj_time_entry_student_id_ojtclassroom-finalproj_user_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_time_entry",
+          "tableTo": "ojtclassroom-finalproj_user",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ojtclassroom-finalproj_time_entry_classroom_id_ojtclassroom-finalproj_classroom_id_fk": {
+          "name": "ojtclassroom-finalproj_time_entry_classroom_id_ojtclassroom-finalproj_classroom_id_fk",
+          "tableFrom": "ojtclassroom-finalproj_time_entry",
+          "tableTo": "ojtclassroom-finalproj_classroom",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ojtclassroom-finalproj_user": {
       "name": "ojtclassroom-finalproj_user",
       "schema": "",
       "columns": {
@@ -332,15 +687,9 @@
         "role": {
           "name": "role",
           "type": "user_role",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
-        },
-        "approval_status": {
-          "name": "approval_status",
-          "type": "approval_status",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'pending'"
         },
         "created_at": {
           "name": "created_at",
@@ -368,40 +717,71 @@
             "clerk_id"
           ]
         }
-      }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
-    "activity_type": {
+    "public.activity_type": {
       "name": "activity_type",
-      "values": {
-        "student": "student",
-        "professor": "professor",
-        "company": "company",
-        "system": "system"
-      }
+      "schema": "public",
+      "values": [
+        "student",
+        "professor",
+        "company",
+        "system"
+      ]
     },
-    "approval_status": {
-      "name": "approval_status",
-      "values": {
-        "pending": "pending",
-        "approved": "approved",
-        "rejected": "rejected"
-      }
+    "public.report_status": {
+      "name": "report_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "submitted",
+        "reviewed",
+        "approved",
+        "rejected"
+      ]
     },
-    "user_role": {
+    "public.report_type": {
+      "name": "report_type",
+      "schema": "public",
+      "values": [
+        "daily",
+        "weekly",
+        "activity_log"
+      ]
+    },
+    "public.task_status": {
+      "name": "task_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "in_progress",
+        "completed",
+        "overdue"
+      ]
+    },
+    "public.user_role": {
       "name": "user_role",
-      "values": {
-        "student": "student",
-        "professor": "professor",
-        "admin": "admin"
-      }
+      "schema": "public",
+      "values": [
+        "student",
+        "professor",
+        "admin"
+      ]
     }
   },
   "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
-} 
+}

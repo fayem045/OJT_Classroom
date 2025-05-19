@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { SignInButton, UserButton, useUser, useAuth } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, useUser, useAuth } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
@@ -14,26 +14,19 @@ const Navbar = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasCheckedRole, setHasCheckedRole] = useState(false);
 
-  // Check if user needs to select a role
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
 
     async function checkUserRole() {
       if (!isLoaded || !userId || hasCheckedRole) return;
-      
+
       try {
-        // First check Clerk metadata for role
         const userMetadata = user?.unsafeMetadata?.role;
         if (userMetadata) {
           setHasCheckedRole(true);
-          // Don't redirect if we're already on a dashboard path
           const currentPath = window.location.pathname;
           if (currentPath === "/" || currentPath === "/sign-up" || currentPath === "/sign-in") {
-            if (userMetadata === "student") {
-              router.push("/classrooms/student");
-            } else if (userMetadata === "professor" || userMetadata === "admin") {
-              router.push("/classrooms/prof/dashboard");
-            }
+            return;
           }
           return;
         }
@@ -43,11 +36,10 @@ const Navbar = () => {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
-        
+
         if (!data.exists || !data.role) {
           setShowRoleSelector(true);
         } else if (data.redirectPath) {
-          // Only redirect if we're on the home page or auth pages
           const currentPath = window.location.pathname;
           if (currentPath === "/" || currentPath === "/sign-up" || currentPath === "/sign-in") {
             router.push(data.redirectPath);
@@ -58,12 +50,11 @@ const Navbar = () => {
         console.error("Failed to check user role:", error);
       }
     }
-    
-    // Run immediately when component mounts or auth state changes
+
     if (isLoaded) {
       checkUserRole();
     }
-    
+
     return () => {
       if (timeoutId !== undefined) {
         clearTimeout(timeoutId);
@@ -71,7 +62,6 @@ const Navbar = () => {
     };
   }, [isSignedIn, userId, isLoaded, router, hasCheckedRole, user]);
 
-  // Reset checked state when user signs out
   useEffect(() => {
     if (!isSignedIn) {
       setHasCheckedRole(false);
@@ -81,9 +71,9 @@ const Navbar = () => {
 
   const handleRoleSubmit = async (role: 'student' | 'professor') => {
     if (!userId || !user?.emailAddresses[0]?.emailAddress) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/users/update-role', {
         method: 'POST',
@@ -98,25 +88,23 @@ const Navbar = () => {
         throw new Error(errorData.message || 'Failed to update user role in database');
       }
 
-      // Update Clerk user metadata
       await user?.update({
         unsafeMetadata: { role },
       });
 
       setShowRoleSelector(false);
-      setHasCheckedRole(true); // Prevent immediate re-check
-      
-      // Redirect based on role
-      if (role === 'student') {
-        router.push("/classrooms/student");
-      } else {
-        router.push("/classrooms/prof/dashboard");
-      }
+      setHasCheckedRole(true); 
+
+      router.push("/");
     } catch (err) {
       console.error("Error setting up account:", err);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+    const handleSignOut = async () => {
+    window.location.href = '/'; 
   };
 
   return (
@@ -150,16 +138,16 @@ const Navbar = () => {
 
           {/* Right - Navigation */}
           <div className="flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+            {/* <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
               Home
-            </Link>
+            </Link> */}
             {isSignedIn && (
-              <Link href="/classrooms" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
-                Classrooms
+              <Link href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                Dashboard
               </Link>
             )}
             {isSignedIn ? (
-              <UserButton afterSignOutUrl="/" />
+              <UserButton afterSignOutUrl="/" signOutCallback={handleSignOut} />
             ) : (
               <div className="flex items-center space-x-4">
                 <SignInButton mode="modal">
@@ -167,12 +155,13 @@ const Navbar = () => {
                     Sign In
                   </button>
                 </SignInButton>
-                <Link 
-                  href="/sign-up"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
-                >
-                  Sign Up
-                </Link>
+
+
+                <SignUpButton mode="modal" afterSignUpUrl="/role-selection">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    Sign Up
+                  </button>
+                </SignUpButton>
               </div>
             )}
           </div>
@@ -187,7 +176,7 @@ const Navbar = () => {
             <p className="text-gray-600 mb-4">
               Please select your role to continue using TrainTrackDesk.
             </p>
-            
+
             <div className="space-y-4 mb-6">
               <button
                 onClick={() => handleRoleSubmit('student')}
@@ -196,7 +185,7 @@ const Navbar = () => {
               >
                 <span>Student</span>
               </button>
-              
+
               <button
                 onClick={() => handleRoleSubmit('professor')}
                 disabled={isSubmitting}
@@ -205,7 +194,7 @@ const Navbar = () => {
                 <span>Professor/Supervisor</span>
               </button>
             </div>
-            
+
             {isSubmitting && (
               <div className="text-center text-blue-600">
                 Setting up your account...
