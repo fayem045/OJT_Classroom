@@ -65,9 +65,9 @@ export default function Sidebar() {
       </div>
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {navItems.map((item) => {
+          {roleBasedNavItems[role as keyof typeof roleBasedNavItems].map((item) => {
             const Icon = item.icon;
-            const isActive = pathName === item.href || pathName.startsWith(`${item.href}/`);
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             
             return (
               <li key={item.href}>

@@ -19,6 +19,7 @@ interface Student {
 }
 
 interface Report {
+  createdAt: string | Date;
   id: number;
   title: string;
   date: string;
@@ -68,7 +69,7 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
   const [studentsPage, setStudentsPage] = useState(1);
   const [reportsPage, setReportsPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  
+
   interface Task {
     id: number;
     title: string;
@@ -76,7 +77,7 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
     dueDate?: string;
     priority: 'high' | 'medium' | 'low';
   }
-  
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -126,69 +127,69 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
   };
 
   const fetchMeetings = async () => {
-  try {
-    const response = await fetch(`/api/prof/meetings?classroomId=${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch meetings');
-    }
-    const data = await response.json();
-    setMeetings(data);
-    console.log("Meetings data:", data);
-  } catch (error) {
-    console.error('Error fetching meetings:', error);
-  }
-};
-
-const fetchStudentProgress = async () => {
-  if (!classroom || !classroom.students) return;
-  
-  const progressData: Record<number, number> = {};
-  
-  for (const student of classroom.students) {
     try {
-      const response = await fetch(`/api/student/progress?studentId=${student.id}&classroomId=${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        progressData[student.id] = data.progressPercentage || 0;
+      const response = await fetch(`/api/prof/meetings?classroomId=${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch meetings');
       }
+      const data = await response.json();
+      setMeetings(data);
+      console.log("Meetings data:", data);
     } catch (error) {
-      console.error(`Error fetching progress for student ${student.id}:`, error);
-      progressData[student.id] = 0;
+      console.error('Error fetching meetings:', error);
     }
-  }
-  
-  setStudentProgress(progressData);
-};
+  };
 
-useEffect(() => {
-  if (userId) {
-    fetchClassroomDetails();
-  }
-}, [userId, id]); 
+  const fetchStudentProgress = async () => {
+    if (!classroom || !classroom.students) return;
 
-useEffect(() => {
-  if (userId && classroom?.students?.length > 0) {
-    fetchTasks();
-    fetchReports();
-    fetchMeetings();
-    fetchStudentProgress();
-  }
-}, [classroom?.students]); 
+    const progressData: Record<number, number> = {};
 
-const formatDate = (dateValue: string | number | Date) => {
-  if (!dateValue) return 'No date';
-  
-  try {
-    const date = new Date(dateValue);
-    if (isNaN(date.getTime())) {
+    for (const student of classroom.students) {
+      try {
+        const response = await fetch(`/api/student/progress?studentId=${student.id}&classroomId=${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          progressData[student.id] = data.progressPercentage || 0;
+        }
+      } catch (error) {
+        console.error(`Error fetching progress for student ${student.id}:`, error);
+        progressData[student.id] = 0;
+      }
+    }
+
+    setStudentProgress(progressData);
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchClassroomDetails();
+    }
+  }, [userId, id]);
+
+  useEffect(() => {
+    if (userId && classroom?.students && classroom.students.length > 0) {
+      fetchTasks();
+      fetchReports();
+      fetchMeetings();
+      fetchStudentProgress();
+    }
+  }, [classroom?.students]);
+
+  const formatDate = (dateValue: string | number | Date) => {
+    if (!dateValue) return 'No date';
+
+    try {
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return date.toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', error);
       return 'Invalid date';
     }
-    return date.toLocaleDateString();
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Invalid date';
-  }
-};
+  };
 
   if (!userId) {
     router.push('/sign-in');
@@ -219,11 +220,10 @@ const formatDate = (dateValue: string | number | Date) => {
     );
   }
 
-  // Calculate pagination
   const paginatedTasks = tasks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const paginatedStudents = classroom.students?.slice((studentsPage - 1) * itemsPerPage, studentsPage * itemsPerPage) || [];
   const paginatedReports = reports.slice((reportsPage - 1) * itemsPerPage, reportsPage * itemsPerPage);
-  
+
   const tasksPageCount = Math.ceil(tasks.length / itemsPerPage);
   const studentsPageCount = Math.ceil((classroom.students?.length || 0) / itemsPerPage);
   const reportsPageCount = Math.ceil(reports.length / itemsPerPage);
@@ -291,8 +291,8 @@ const formatDate = (dateValue: string | number | Date) => {
                 <p className="mt-1">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${classroom.isActive
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
                       }`}
                   >
                     {classroom.isActive ? 'Active' : 'Inactive'}
@@ -311,7 +311,7 @@ const formatDate = (dateValue: string | number | Date) => {
               <FileText className="w-6 h-6 text-blue-600" />
               <h2 className="text-lg font-semibold">Student Reports</h2>
             </div>
-            
+
             {reports.length > 0 ? (
               <>
                 <div className="space-y-4">
@@ -322,23 +322,22 @@ const formatDate = (dateValue: string | number | Date) => {
                           <h3 className="font-medium text-gray-900">{report.title}</h3>
                           <p className="text-sm text-gray-500 mt-1">Student: {report.studentName}</p>
                           <p className="text-sm text-gray-500">
-  Date: {report.createdAt ? formatDate(report.createdAt) : 'No date'}
-</p>
+                            Date: {report.createdAt ? formatDate(report.createdAt) : 'No date'}
+                          </p>
                         </div>
 
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          report.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          report.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs rounded-full ${report.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            report.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {report.status}
                         </span>
                       </div>
                       {report.submissionUrl && (
                         <div className="mt-3">
-                          <a 
-                            href={report.submissionUrl} 
-                            target="_blank" 
+                          <a
+                            href={report.submissionUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                           >
@@ -360,8 +359,8 @@ const formatDate = (dateValue: string | number | Date) => {
                           key={index}
                           onClick={() => setReportsPage(index + 1)}
                           className={`w-8 h-8 rounded-full text-sm ${reportsPage === index + 1
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
                           {index + 1}
@@ -406,13 +405,13 @@ const formatDate = (dateValue: string | number | Date) => {
                       <div className="flex items-center gap-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
                           <div
-  className="bg-blue-600 h-2 rounded-full"
-  style={{ width: `${studentProgress[student.id] || 0}%` }}
-></div>
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{ width: `${studentProgress[student.id] || 0}%` }}
+                          ></div>
                         </div>
                         <span className="text-sm text-gray-500">
-  {studentProgress[student.id] || 0}%
-</span>
+                          {studentProgress[student.id] || 0}%
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -427,8 +426,8 @@ const formatDate = (dateValue: string | number | Date) => {
                           key={index}
                           onClick={() => setStudentsPage(index + 1)}
                           className={`w-8 h-8 rounded-full text-sm ${studentsPage === index + 1
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
                           {index + 1}
@@ -474,8 +473,8 @@ const formatDate = (dateValue: string | number | Date) => {
                         </div>
 
                         <span className={`px-2 py-1 text-xs rounded-full ${task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
                           }`}>
                           {task.priority}
                         </span>
@@ -499,8 +498,8 @@ const formatDate = (dateValue: string | number | Date) => {
                           key={index}
                           onClick={() => setCurrentPage(index + 1)}
                           className={`w-8 h-8 rounded-full text-sm ${currentPage === index + 1
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
                           {index + 1}
@@ -515,7 +514,7 @@ const formatDate = (dateValue: string | number | Date) => {
             )}
           </div>
 
-           {/* Scheduled Meetings Section */}
+          {/* Scheduled Meetings Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -530,40 +529,40 @@ const formatDate = (dateValue: string | number | Date) => {
                 Add Meeting
               </button>
             </div>
-            
+
             {meetings && meetings.length > 0 ? (
-  <div className="space-y-3">
-    {meetings.map((meeting) => (
-      <div key={meeting.id} className="p-4 border rounded-lg bg-gray-50">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-medium text-gray-900">{meeting.title}</h3>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {new Date(meeting.date).toLocaleDateString()}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                {meeting.time}
-              </span>
-            </div>
-          </div>
-          <a 
-            href={meeting.meetingUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-3 py-1 bg-blue-100 text-blue-600 rounded-md text-sm hover:bg-blue-200 transition-colors"
-          >
-            Join Meeting
-          </a>
-        </div>
-      </div>
-    ))}
-  </div>
-) : (
-  <p className="text-gray-500 py-4">No meetings scheduled yet</p>
-)}
+              <div className="space-y-3">
+                {meetings.map((meeting) => (
+                  <div key={meeting.id} className="p-4 border rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900">{meeting.title}</h3>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(meeting.date).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {meeting.time}
+                          </span>
+                        </div>
+                      </div>
+                      <a
+                        href={meeting.meetingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1 bg-blue-100 text-blue-600 rounded-md text-sm hover:bg-blue-200 transition-colors"
+                      >
+                        Join Meeting
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 py-4">No meetings scheduled yet</p>
+            )}
           </div>
         </div>
       </div>
@@ -591,7 +590,7 @@ const formatDate = (dateValue: string | number | Date) => {
         />
       )}
 
-        {showTaskModal && (
+      {showTaskModal && (
         <CreateTaskModal
           classroomId={classroom.id}
           onClose={() => setShowTaskModal(false)}

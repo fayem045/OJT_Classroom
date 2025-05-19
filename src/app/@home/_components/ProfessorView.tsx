@@ -37,6 +37,7 @@ interface Classroom {
     id: number;
     email: string;
   };
+  students?: Student[];
 }
 
 export default function ProfessorView() {
@@ -55,90 +56,125 @@ export default function ProfessorView() {
   const [pendingReports, setPendingReports] = useState(0);
   const [completedEvals, setCompletedEvals] = useState(0);
 
-  const fetchDashboardData = async () => {
+  const fetchClassrooms = async () => {
+    try {
+      const response = await fetch('/api/prof/companies/classrooms', {
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      const data = await response.json();
+      console.log('Classrooms response:', data);
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch classrooms');
+      }
+      
+      return data.classrooms || [];
+    } catch (error) {
+      console.error("Error fetching classrooms:", error);
+      throw error;
+    }
+  };
+
+  const fetchClassroomDetails = async (classroomId: number) => {
+    try {
+      const response = await fetch(`/api/admin/companies/classrooms/${classroomId}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch classroom details');
+      }
+      const data = await response.json();
+      console.log(`Classroom ${classroomId} details:`, data);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching classroom ${classroomId} details:`, error);
+      throw error;
+    }
+  };
+
+  const fetchReports = async (classroomId: number) => {
+    try {
+      const response = await fetch(`/api/student/reports?classroomId=${classroomId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch reports');
+      }
+      const data = await response.json();
+      console.log(`Reports for classroom ${classroomId}:`, data);
+      return data || [];
+    } catch (error) {
+      console.error(`Error fetching reports for classroom ${classroomId}:`, error);
+      return [];
+    }
+  };
+
+  const fetchMeetings = async (classroomId: number) => {
+    try {
+      const response = await fetch(`/api/prof/meetings?classroomId=${classroomId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch meetings');
+      }
+      const data = await response.json();
+      console.log(`Meetings for classroom ${classroomId}:`, data);
+      return data || [];
+    } catch (error) {
+      console.error(`Error fetching meetings for classroom ${classroomId}:`, error);
+      return [];
+    }
+  };
+
+  const fetchAllData = async () => {
     setLoading(true);
     try {
-      // First fetch classrooms
-      console.log("Fetching classrooms...");
-      const classroomsResponse = await fetch('/api/admin/companies/classrooms');
+      const classroomsData = await fetchClassrooms();
+      setClassrooms(classroomsData);
       
-      if (!classroomsResponse.ok) {
-        throw new Error(`Failed to fetch classrooms: ${classroomsResponse.status} ${classroomsResponse.statusText}`);
-      }
+      let allStudents: Student[] = [];
+      let allReports: Report[] = [];
+      let allMeetings: Meeting[] = [];
       
-      const classroomsData = await classroomsResponse.json();
-      console.log("Classrooms API response:", classroomsData);
-      
-      // Handle both array or object with classrooms property
-      const classroomsArray = Array.isArray(classroomsData) 
-        ? classroomsData 
-        : classroomsData.classrooms || [];
-      
-      console.log("Processed classrooms:", classroomsArray);
-      setClassrooms(classroomsArray);
-
-      // If we have at least one classroom
-      let classroomId = null;
-      if (classroomsArray.length > 0) {
-        classroomId = classroomsArray[0].id;
-        console.log("Selected classroom ID:", classroomId);
-
-        // Fetch classroom details to get students
-        console.log("Fetching classroom details...");
-        const studentsRes = await fetch(`/api/admin/companies/classrooms/${classroomId}`);
+      for (const classroom of classroomsData) {
+        const classroomDetail = await fetchClassroomDetails(classroom.id);
         
-        if (studentsRes.ok) {
-          const classroomData = await studentsRes.json();
-          console.log("Classroom data:", classroomData);
-          
-          const studentsArray = classroomData.students || [];
-          console.log("Students array:", studentsArray);
-          
-          setStudents(studentsArray);
-          setTotalStudents(studentsArray.length);
-        } else {
-          console.error("Failed to fetch classroom details:", await studentsRes.text());
+        if (classroomDetail.students?.length > 0) {
+          allStudents = [...allStudents, ...classroomDetail.students];
         }
-
-        // Fetch reports
-        console.log("Fetching reports...");
-        const reportsRes = await fetch(`/api/student/reports?classroomId=${classroomId}`);
         
-        if (reportsRes.ok) {
-          const reportsData = await reportsRes.json();
-          console.log("Reports data:", reportsData);
-          
-          setReports(reportsData || []);
-          
-          // Count pending reports
-          const pending = reportsData.filter((report: any) => 
-            report.status === 'submitted' || report.status === 'pending'
-          ).length;
-          console.log("Pending reports:", pending);
-          setPendingReports(pending);
-          
-          // Count completed evaluations
-          const completed = reportsData.filter((report: any) =>
-            report.status === 'approved' || report.status === 'rejected'
-          ).length;
-          console.log("Completed evaluations:", completed);
-          setCompletedEvals(completed);
-        } else {
-          console.error("Failed to fetch reports:", await reportsRes.text());
+        const classroomReports = await fetchReports(classroom.id);
+        if (classroomReports.length > 0) {
+          allReports = [...allReports, ...classroomReports];
         }
-
-        // Fetch meetings
-        console.log("Fetching meetings...");
-        const meetingsRes = await fetch(`/api/prof/meetings?classroomId=${classroomId}`);
         
-        if (meetingsRes.ok) {
-          const meetingsData = await meetingsRes.json();
-          console.log("Meetings data:", meetingsData);
-          setMeetings(meetingsData || []);
-        } else {
-          console.error("Failed to fetch meetings:", await meetingsRes.text());
+        const classroomMeetings = await fetchMeetings(classroom.id);
+        if (classroomMeetings.length > 0) {
+          allMeetings = [...allMeetings, ...classroomMeetings];
         }
       }
+      
+      const uniqueStudentIds = new Set<number>();
+      const uniqueStudents = allStudents.filter(student => {
+        if (!uniqueStudentIds.has(student.id)) {
+          uniqueStudentIds.add(student.id);
+          return true;
+        }
+        return false;
+      });
+      
+      setStudents(uniqueStudents);
+      setTotalStudents(uniqueStudents.length);
+      
+      setReports(allReports);
+      setPendingReports(allReports.filter(report => 
+        report.status === 'submitted' || report.status === 'pending'
+      ).length);
+      
+      setCompletedEvals(allReports.filter(report => 
+        report.status === 'approved' || report.status === 'rejected'
+      ).length);
+      
+      setMeetings(allMeetings);
+      
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
@@ -149,13 +185,13 @@ export default function ProfessorView() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      fetchDashboardData();
+      fetchAllData();
     }
   }, [isLoaded, user]);
 
   const formatDate = (dateString: string | number | Date) => {
     if (!dateString) return 'No date';
-    
+
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
@@ -267,8 +303,8 @@ export default function ProfessorView() {
                           <span className="ml-2 text-sm text-gray-600">{student.progress || 0}%</span>
                         </div>
                         {classrooms.length > 0 && (
-                          <Link 
-                            href={`/companies/${classrooms[0]?.id}`} 
+                          <Link
+                            href={`/companies/${classrooms[0]?.id}`}
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                           >
                             View Details
