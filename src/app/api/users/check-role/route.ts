@@ -1,78 +1,62 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
     const { userId } = await auth();
+    const url = new URL(req.url);
+    const clerkId = url.searchParams.get("clerkId") || userId;
     
-    if (!userId) {
-      console.log("No userId found in auth");
+    console.log('Checking role for userId:', clerkId);
+    
+    if (!clerkId) {
+      console.log('No userId found');
       return NextResponse.json(
-        { message: "Unauthorized" },
+        { exists: false, message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    // Get the clerkId from query params
-    const url = new URL(req.url);
-    const clerkId = url.searchParams.get("clerkId");
-
-    if (!clerkId) {
-      console.log("No clerkId provided in query params");
-      return NextResponse.json(
-        { message: "Missing clerkId parameter" },
-        { status: 400 }
-      );
-    }
-
-    // Verify that the requester is checking their own user
-    if (clerkId !== userId) {
-      console.log(`Unauthorized check attempt: ${clerkId} tried to check ${userId}`);
-      return NextResponse.json(
-        { message: "Unauthorized action" },
-        { status: 403 }
-      );
-    }
-
-    // Check if user exists and get their role from database
-    const dbUser = await db.query.users.findFirst({
+    console.log('Querying database for user with clerkId:', clerkId);
+    const user = await db.query.users.findFirst({
       where: eq(users.clerkId, clerkId),
     });
 
-    console.log(`User check for ${clerkId}:`, { 
-      exists: Boolean(dbUser),
-      role: dbUser?.role || null
+    console.log('User check result:', {
+      found: !!user,
+      userId: user?.id,
+      clerkId: user?.clerkId,
+      role: user?.role,
+      email: user?.email
     });
 
-    // If user exists and has a role, determine the correct redirect path
-    let redirectPath = null;
-    if (dbUser?.role) {
-      if (dbUser.role === "student") {
-        redirectPath = "/";
-      } else if (dbUser.role === "professor" || dbUser.role === "admin") {
-        redirectPath = "/";
-      }
+    if (!user) {
+      console.log('User not found in database');
+      return NextResponse.json(
+        { exists: false, message: "User not found" },
+        { status: 200 } 
+      );
     }
 
-    return NextResponse.json(
-      { 
-        exists: Boolean(dbUser),
-        role: dbUser?.role || null,
-        redirectPath
-      },
-      { status: 200 }
-    );
+    const response = NextResponse.json({
+      exists: true,
+      role: user.role,
+      userId: user.id
+    });
+
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    return response;
   } catch (error) {
-    console.error("Error checking user:", error);
+    console.error("Error checking role:", error);
     return NextResponse.json(
-      { 
-        message: "Failed to check user",
-        error: error instanceof Error ? error.message : "Unknown error"
-      },
+      { exists: false, message: "Internal Server Error" },
       { status: 500 }
     );
   }
-} 
+}

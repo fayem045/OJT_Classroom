@@ -6,15 +6,15 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function RoleSelectionPage() {
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const [role, setRole] = useState<"student" | "professor" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
+  // if (!isLoaded) {
+  //   return <div>Loading...</div>;
+  // }
 
   if (!user) {
     router.push('/sign-in');

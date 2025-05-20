@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       // Create new user
       await db.insert(users).values({
         clerkId: clerkUserId,
-        email: email || "", // Will be updated later when available
+        email: "",
         role,
         createdAt: new Date(),
         updatedAt: new Date(),

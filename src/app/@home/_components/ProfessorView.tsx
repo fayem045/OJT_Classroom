@@ -173,7 +173,7 @@ const fetchClassroomDetails = async (classroomId: number) => {
         const progressData = await fetchStudentProgress(classroomDetail.students, classroom.id);
 
         for (const studentId in progressData) {
-          const newProgress = progressData[studentId];
+          const newProgress = progressData[studentId] || 0;
           const existingProgress = allProgressData[studentId] || 0;
 
           allProgressData[studentId] = Math.max(existingProgress, newProgress);
