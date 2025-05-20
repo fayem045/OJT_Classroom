@@ -3,51 +3,43 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
-import { Building2, Users, Calendar } from 'lucide-react';
+import { Building2, Users, Calendar, ArrowLeft, Clock } from 'lucide-react';
+import Link from 'next/link';
 
-interface CompanyClassroom {
-  id: number;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  maxStudents: number;
-  isActive: boolean;
-  professor: {
-    id: number;
-    email: string;
+interface EditCompanyClassroomPageProps {
+  params: {
+    id: string;
   };
 }
 
-interface EditCompanyClassroomClientProps {
-  id: string;
-}
-
-export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomClientProps) {
+export default function EditCompanyClassroomPage({ params }: EditCompanyClassroomPageProps) {
   const router = useRouter();
   const { userId } = useAuth();
-  const [classroom, setClassroom] = useState<CompanyClassroom | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [classroom, setClassroom] = useState<any>(null);
 
   useEffect(() => {
     const fetchClassroom = async () => {
+      if (!userId) return;
+      
       try {
-        const response = await fetch(`/api/admin/companies/classrooms/${id}`);
+        const response = await fetch(`/api/admin/companies/classrooms/${params.id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch classroom details');
+          throw new Error('Failed to fetch classroom');
         }
         const data = await response.json();
         setClassroom(data);
       } catch (err) {
         setError('Failed to fetch classroom details');
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (userId) {
-      fetchClassroom();
-    }
-  }, [userId, id]);
+    fetchClassroom();
+  }, [userId, params.id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,12 +52,12 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
       description: formData.get('description') as string,
       startDate: formData.get('startDate') as string,
       endDate: formData.get('endDate') as string,
-      maxStudents: parseInt(formData.get('maxStudents') as string),
-      isActive: formData.get('isActive') === 'true',
+      ojtHours: parseInt(formData.get('ojtHours') as string),
+      isActive: Boolean(formData.get('isActive')),
     };
 
     try {
-      const response = await fetch(`/api/admin/companies/classrooms/${id}`, {
+      const response = await fetch(`/api/admin/companies/classrooms/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -74,18 +66,18 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update company classroom');
+        throw new Error('Failed to update classroom');
       }
 
       router.push('/companies');
     } catch (err) {
-      setError('Failed to update company classroom. Please try again.');
+      setError('Failed to update classroom. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!classroom) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -93,12 +85,33 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
     );
   }
 
+  if (!classroom) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-red-50 p-4 rounded-md text-red-700">
+          {error || 'Classroom not found'}
+        </div>
+        <div className="mt-4">
+          <Link href="/companies" className="text-blue-600 hover:underline flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" /> Back to Classrooms
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Edit Company Classroom</h1>
+        <Link
+          href="/companies"
+          className="text-blue-600 hover:text-blue-800 mb-4 inline-flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Classrooms
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight mt-4">Edit Company Classroom</h1>
         <p className="text-gray-500">
-          Update the OJT classroom details
+          Update the details for {classroom.name}
         </p>
       </div>
 
@@ -164,7 +177,7 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
                     name="startDate"
                     id="startDate"
                     required
-                    defaultValue={classroom.startDate}
+                    defaultValue={classroom.startDate ? classroom.startDate.split('T')[0] : ''}
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
@@ -183,56 +196,54 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
                     name="endDate"
                     id="endDate"
                     required
-                    defaultValue={classroom.endDate}
+                    defaultValue={classroom.endDate ? classroom.endDate.split('T')[0] : ''}
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Maximum Students */}
+            {/* OJT Hours */}
             <div>
-              <label htmlFor="maxStudents" className="block text-sm font-medium text-gray-700">
-                Maximum Students
+              <label htmlFor="ojtHours" className="block text-sm font-medium text-gray-700">
+                Required OJT Hours
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Users className="h-5 w-5 text-gray-400" />
+                  <Clock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   type="number"
-                  name="maxStudents"
-                  id="maxStudents"
+                  name="ojtHours"
+                  id="ojtHours"
                   required
                   min="1"
-                  defaultValue={classroom.maxStudents}
+                  defaultValue={classroom.ojtHours || 600}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter maximum number of students"
+                  placeholder="Required OJT hours (e.g., 600)"
                 />
               </div>
+              <p className="mt-1 text-sm text-gray-500">Required hours students must complete</p>
             </div>
 
             {/* Active Status */}
-            <div>
-              <label htmlFor="isActive" className="block text-sm font-medium text-gray-700">
-                Status
+            <div className="flex items-center">
+              <input
+                id="isActive"
+                name="isActive"
+                type="checkbox"
+                defaultChecked={classroom.isActive}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                Active Classroom
               </label>
-              <div className="mt-1">
-                <select
-                  id="isActive"
-                  name="isActive"
-                  defaultValue={classroom.isActive.toString()}
-                  className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </select>
-              </div>
+              <p className="ml-4 text-sm text-gray-500">Inactive classrooms are not visible to students</p>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end space-x-4">
           <button
             type="button"
             onClick={() => router.back()}
@@ -251,4 +262,4 @@ export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomC
       </form>
     </div>
   );
-} 
+}

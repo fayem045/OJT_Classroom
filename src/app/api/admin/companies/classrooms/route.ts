@@ -15,7 +15,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // Get the admin user
     const adminUser = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
     });
@@ -27,7 +26,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // Get all company classrooms with their professors, but only for the current professor
     const companyClassrooms = await db.query.classrooms.findMany({
       where: and(
         eq(classrooms.isActive, true),
@@ -61,9 +59,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, description, startDate, endDate } = body;
+    const { name, description, startDate, endDate, ojtHours } = body;
 
-    // Validate input
     if (!name) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -87,7 +84,8 @@ export async function POST(req: Request) {
       description,
       professorId: adminUser.id,
       startDate: startDate || null,  
-      endDate: endDate || null,      
+      endDate: endDate || null,
+      ojtHours: ojtHours || 600, 
       isActive: true,
     }).returning();
 

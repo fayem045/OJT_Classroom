@@ -56,6 +56,8 @@ export default function ProfessorView() {
   const [pendingReports, setPendingReports] = useState(0);
   const [completedEvals, setCompletedEvals] = useState(0);
 
+  const [studentProgress, setStudentProgress] = useState<Record<number, number>>({});
+
   const fetchClassrooms = async () => {
     try {
       const response = await fetch('/api/prof/companies/classrooms', {
@@ -63,14 +65,14 @@ export default function ProfessorView() {
           'Cache-Control': 'no-cache',
         },
       });
-      
+
       const data = await response.json();
-      console.log('Classrooms response:', data);
-      
+      // console.log('Classrooms response:', data);
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to fetch classrooms');
       }
-      
+
       return data.classrooms || [];
     } catch (error) {
       console.error("Error fetching classrooms:", error);
@@ -86,7 +88,7 @@ export default function ProfessorView() {
         throw new Error(errorData.message || 'Failed to fetch classroom details');
       }
       const data = await response.json();
-      console.log(`Classroom ${classroomId} details:`, data);
+      // console.log(`Classroom ${classroomId} details:`, data);
       return data;
     } catch (error) {
       console.error(`Error fetching classroom ${classroomId} details:`, error);
@@ -101,7 +103,7 @@ export default function ProfessorView() {
         throw new Error('Failed to fetch reports');
       }
       const data = await response.json();
-      console.log(`Reports for classroom ${classroomId}:`, data);
+      // console.log(`Reports for classroom ${classroomId}:`, data);
       return data || [];
     } catch (error) {
       console.error(`Error fetching reports for classroom ${classroomId}:`, error);
@@ -116,7 +118,7 @@ export default function ProfessorView() {
         throw new Error('Failed to fetch meetings');
       }
       const data = await response.json();
-      console.log(`Meetings for classroom ${classroomId}:`, data);
+      // console.log(`Meetings for classroom ${classroomId}:`, data);
       return data || [];
     } catch (error) {
       console.error(`Error fetching meetings for classroom ${classroomId}:`, error);
@@ -124,34 +126,64 @@ export default function ProfessorView() {
     }
   };
 
+  const fetchStudentProgress = async (studentsArray: Student[], classroomId: number) => {
+    const progressData: Record<number, number> = {};
+
+    for (const student of studentsArray) {
+      try {
+        const response = await fetch(`/api/student/progress?studentId=${student.id}&classroomId=${classroomId}`);
+        if (response.ok) {
+          const data = await response.json();
+          progressData[student.id] = data.progressPercentage || 0;
+        }
+      } catch (error) {
+        console.error(`Error fetching progress for student ${student.id}:`, error);
+        progressData[student.id] = 0;
+      }
+    }
+
+    return progressData;
+  };
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
       const classroomsData = await fetchClassrooms();
       setClassrooms(classroomsData);
-      
+
       let allStudents: Student[] = [];
       let allReports: Report[] = [];
       let allMeetings: Meeting[] = [];
-      
+      let allProgressData: Record<number, number> = {};
+
       for (const classroom of classroomsData) {
         const classroomDetail = await fetchClassroomDetails(classroom.id);
-        
+
         if (classroomDetail.students?.length > 0) {
-          allStudents = [...allStudents, ...classroomDetail.students];
+        // console.log(`Found ${classroomDetail.students.length} students in classroom ${classroom.id}`);
+        allStudents = [...allStudents, ...classroomDetail.students];
+
+        const progressData = await fetchStudentProgress(classroomDetail.students, classroom.id);
+
+        for (const studentId in progressData) {
+          const newProgress = progressData[studentId];
+          const existingProgress = allProgressData[studentId] || 0;
+
+          allProgressData[studentId] = Math.max(existingProgress, newProgress);
         }
-        
+      }
+
         const classroomReports = await fetchReports(classroom.id);
         if (classroomReports.length > 0) {
           allReports = [...allReports, ...classroomReports];
         }
-        
+
         const classroomMeetings = await fetchMeetings(classroom.id);
         if (classroomMeetings.length > 0) {
           allMeetings = [...allMeetings, ...classroomMeetings];
         }
       }
-      
+
       const uniqueStudentIds = new Set<number>();
       const uniqueStudents = allStudents.filter(student => {
         if (!uniqueStudentIds.has(student.id)) {
@@ -160,21 +192,24 @@ export default function ProfessorView() {
         }
         return false;
       });
-      
+
       setStudents(uniqueStudents);
       setTotalStudents(uniqueStudents.length);
-      
+
       setReports(allReports);
-      setPendingReports(allReports.filter(report => 
+      setPendingReports(allReports.filter(report =>
         report.status === 'submitted' || report.status === 'pending'
       ).length);
-      
-      setCompletedEvals(allReports.filter(report => 
+
+      setCompletedEvals(allReports.filter(report =>
         report.status === 'approved' || report.status === 'rejected'
       ).length);
-      
+
+      setStudentProgress(allProgressData);
+
+
       setMeetings(allMeetings);
-      
+
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
@@ -210,12 +245,9 @@ export default function ProfessorView() {
 
   if (!isLoaded || loading) {
     return (
-      <main className="flex-1 p-8 flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
-          <p className="mt-4 text-gray-600">Loading dashboard data...</p>
-        </div>
-      </main>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
     );
   }
 
@@ -297,10 +329,10 @@ export default function ProfessorView() {
                           <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div
                               className="bg-blue-600 h-2 rounded-full"
-                              style={{ width: `${student.progress || 0}%` }}
+                              style={{ width: `${studentProgress[student.id] || 0}%` }}
                             ></div>
                           </div>
-                          <span className="ml-2 text-sm text-gray-600">{student.progress || 0}%</span>
+                          <span className="ml-2 text-sm text-gray-600">{studentProgress[student.id] || 0}%</span>
                         </div>
                         {classrooms.length > 0 && (
                           <Link

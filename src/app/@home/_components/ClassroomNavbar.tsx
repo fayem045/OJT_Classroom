@@ -51,10 +51,10 @@ export default function ClassroomNavbar() {
                 <Settings className="h-5 w-5" />
               </Link>
             )}
-            <button className="p-2 hover:bg-gray-100 rounded-full relative">
+            {/* <button className="p-2 hover:bg-gray-100 rounded-full relative">
               <Bell className="h-5 w-5 text-gray-600" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-            </button>
+            </button> */}
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600 capitalize hidden sm:inline-block">{role}</span>
               <UserButton afterSignOutUrl="/" />

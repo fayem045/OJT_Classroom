@@ -109,6 +109,7 @@ export const classrooms = createTable("classroom", {
   startDate: date("start_date"),
   endDate: date("end_date"),
   isActive: boolean("is_active").default(true).notNull(),
+  ojtHours: integer('ojt_hours').default(600),
   inviteCode: varchar("invite_code", { length: 8 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

@@ -97,11 +97,11 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   { params }: { params: RouteParams }
-): Promise<void | NextResponse> {
+) {
   try {
-    const { id } = await params;
     const { userId } = await auth();
-    
+    const { id: paramId } = await params;
+
     if (!userId) {
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -109,32 +109,44 @@ export async function PUT(
       );
     }
 
-    // Get the admin user
-    const adminUser = await db.query.users.findFirst({
+    const id = parseInt(paramId);
+
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { message: "Invalid classroom ID" },
+        { status: 400 }
+      );
+    }
+
+    const profUser = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
     });
 
-    if (!adminUser || adminUser.role !== "professor") {
+    if (!profUser || profUser.role !== "professor") {
       return NextResponse.json(
-        { message: "Only professors can update classrooms" },
+        { message: "Forbidden: Professor access required" },
         { status: 403 }
       );
-    }    
-    const classroomId = parseInt(id);
-    const updates = await request.json();
+    }
 
-    // Update classroom details
-    await db.update(classrooms)
+    const { name, description, startDate, endDate, ojtHours, isActive } = await request.json();
+
+    const result = await db
+      .update(classrooms)
       .set({
-        name: updates.name,
-        description: updates.description,
-        isActive: updates.isActive,
+        name, 
+        description,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        ojtHours: ojtHours || 600,
+        isActive: isActive !== undefined ? isActive : true,
+        updatedAt: new Date()
       })
-      .where(eq(classrooms.id, classroomId));
+      .where(eq(classrooms.id, id));
 
     return NextResponse.json({ message: "Classroom updated successfully" });
   } catch (error) {
-    console.error("Error updating classroom:", error);
+    console.error("Error in PUT /api/admin/companies/classrooms/[id]:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

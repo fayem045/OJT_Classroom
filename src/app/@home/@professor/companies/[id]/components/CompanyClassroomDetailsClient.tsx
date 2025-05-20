@@ -276,6 +276,11 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
                 <h3 className="text-sm font-medium text-gray-500">Description</h3>
                 <p className="mt-1 text-gray-900">{classroom.description}</p>
               </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Required OJT Hours</h3>
+                <p className="mt-1 text-gray-900">{classroom.ojtHours || 600} hours</p>
+              </div>
               {/* <div>
                 <h3 className="text-sm font-medium text-gray-500">Created By</h3>
                 <p className="mt-1 text-gray-900">{classroom.professor.email}</p>
@@ -327,8 +332,8 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
                         </div>
 
                         <span className={`px-2 py-1 text-xs rounded-full ${report.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            report.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
+                          report.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
                           }`}>
                           {report.status}
                         </span>
@@ -409,8 +414,9 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
                             style={{ width: `${studentProgress[student.id] || 0}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="ml-2 text-sm text-gray-600">
                           {studentProgress[student.id] || 0}%
+                          ({student.completedHours || 0}/{classroom.ojtHours || 600} hours)
                         </span>
                       </div>
                     </div>

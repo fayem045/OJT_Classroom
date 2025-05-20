@@ -106,7 +106,6 @@ export default function CompanyClassroomsPage() {
         throw new Error('Failed to delete classroom');
       }
 
-      // Refresh the classrooms list
       setClassrooms(prevClassrooms => 
         prevClassrooms.filter(classroom => classroom.id !== classroomId)
       );
