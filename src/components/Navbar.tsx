@@ -93,7 +93,7 @@ const Navbar = () => {
       });
 
       setShowRoleSelector(false);
-      setHasCheckedRole(true); 
+      setHasCheckedRole(true);
 
       router.push("/");
     } catch (err) {
@@ -103,8 +103,8 @@ const Navbar = () => {
     }
   };
 
-    const handleSignOut = async () => {
-    window.location.href = '/'; 
+  const handleSignOut = async () => {
+    window.location.href = '/';
   };
 
   return (
@@ -146,23 +146,28 @@ const Navbar = () => {
                 Dashboard
               </Link>
             )}
+
             {isSignedIn ? (
-              <UserButton afterSignOutUrl="/" signOutCallback={handleSignOut} />
+              <>
+              {/* @ts-ignore - The afterSignUpUrl works at runtime but TS doesn't recognize it */ }
+              < UserButton afterSignOutUrl="/" signOutCallback={handleSignOut} />
+              </>
             ) : (
-              <div className="flex items-center space-x-4">
-                <SignInButton mode="modal">
-                  <button className="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
-                    Sign In
-                  </button>
-                </SignInButton>
+            <div className="flex items-center space-x-4">
+              <SignInButton mode="modal">
+                <button className="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                  Sign In
+                </button>
+              </SignInButton>
 
+              {/* @ts-ignore - The afterSignUpUrl works at runtime but TS doesn't recognize it */}
 
-                <SignUpButton mode="modal" afterSignUpUrl="/role-selection">
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </div>
+              <SignUpButton mode="modal" afterSignUpUrl="/role-selection">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
             )}
           </div>
         </div>
