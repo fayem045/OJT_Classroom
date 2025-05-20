@@ -87,7 +87,7 @@ export async function GET(
       name: classroom.name,
       description: classroom.description || '',
       professor: {
-        name: classroom.professor.name || 'Professor',
+        name: 'Professor', // Using default since name property doesn't exist
         email: classroom.professor.email
       },
       progress: 0, // Default value since enrollment doesn't track progress

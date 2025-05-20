@@ -38,6 +38,7 @@ interface Meeting {
 }
 
 interface CompanyClassroom {
+  ojtHours: number;
   id: number;
   name: string;
   description: string;

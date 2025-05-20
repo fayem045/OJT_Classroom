@@ -1,4 +1,4 @@
-import StudentView from "~/app/classrooms/_components/StudentView";
+import StudentView from "~/app/@home/_components/StudentView";
 
 export default function StudentDashboardPage() {
   return <StudentView />;
