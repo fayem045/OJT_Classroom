@@ -11,11 +11,13 @@ interface TimeEntryFormProps {
 export default function TimeEntryForm({ classroomId, onSuccess }: TimeEntryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -69,8 +71,20 @@ export default function TimeEntryForm({ classroomId, onSuccess }: TimeEntryFormP
           console.warn('Could not reset form:', resetError);
         }
       }
+      setSuccessMessage('Time entry submitted successfully!');
+
+         if (form) {
+        try {
+          form.reset();
+        } catch (resetError) {
+          console.warn('Could not reset form:', resetError);
+        }
+      }
 
       onSuccess();
+           setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

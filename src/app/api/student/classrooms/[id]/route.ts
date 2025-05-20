@@ -70,6 +70,18 @@ export async function GET(
       { id: 3, title: 'Project Milestone Report', type: 'Monthly', date: 'April 30, 2025', status: 'rejected' }
     ];
 
+    function formatDateSafely(dateValue: any): string | null {
+  if (!dateValue) return null;
+  
+  try {
+
+    return new Date(dateValue).toISOString();
+  } catch (error) {
+    console.error("Error formatting date:", error, dateValue);
+    return String(dateValue) || null;
+  }
+}
+
     return NextResponse.json({
       id: classroom.id,
       name: classroom.name,
@@ -79,10 +91,10 @@ export async function GET(
         email: classroom.professor.email
       },
       progress: 0, // Default value since enrollment doesn't track progress
-      hoursCompleted: 0, // Default value since enrollment doesn't track completed hours
-      hoursRequired: 500, 
-      startDate: classroom.startDate ? classroom.startDate.toISOString().split('T')[0] : null,
-endDate: classroom.endDate ? classroom.endDate.toISOString().split('T')[0] : null,
+  completedHours: 0,  // Change from hoursCompleted to completedHours
+  requiredHours: classroom.ojtHours || 500,  // Use classroom.ojtHours if available
+      startDate: formatDateSafely(classroom.startDate),
+      endDate: formatDateSafely(classroom.endDate),
       reports: mockReports
     });
   } catch (error) {

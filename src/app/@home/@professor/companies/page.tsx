@@ -98,7 +98,7 @@ export default function CompanyClassroomsPage() {
     }
 
     try {
-      const response = await fetch(`/api/prof/companies/classrooms/${classroomId}`, {
+      const response = await fetch(`/api/admin/companies/classrooms/${classroomId}`, {
         method: 'DELETE',
       });
 

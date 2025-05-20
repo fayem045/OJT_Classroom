@@ -6,13 +6,11 @@ import { useAuth } from '@clerk/nextjs';
 import { Building2, Users, Calendar, ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-interface EditCompanyClassroomPageProps {
-  params: {
-    id: string;
-  };
+interface EditCompanyClassroomClientProps {
+  id: string; 
 }
 
-export default function EditCompanyClassroomPage({ params }: EditCompanyClassroomPageProps) {
+export default function EditCompanyClassroomClient({ id }: EditCompanyClassroomClientProps) {
   const router = useRouter();
   const { userId } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,7 +23,7 @@ export default function EditCompanyClassroomPage({ params }: EditCompanyClassroo
       if (!userId) return;
       
       try {
-        const response = await fetch(`/api/admin/companies/classrooms/${params.id}`);
+        const response = await fetch(`/api/admin/companies/classrooms/${id}`); // Use id directly here
         if (!response.ok) {
           throw new Error('Failed to fetch classroom');
         }
@@ -39,7 +37,7 @@ export default function EditCompanyClassroomPage({ params }: EditCompanyClassroo
     };
 
     fetchClassroom();
-  }, [userId, params.id]);
+  }, [userId, id]); 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +55,7 @@ export default function EditCompanyClassroomPage({ params }: EditCompanyClassroo
     };
 
     try {
-      const response = await fetch(`/api/admin/companies/classrooms/${params.id}`, {
+      const response = await fetch(`/api/admin/companies/classrooms/${id}`, { 
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -76,6 +74,7 @@ export default function EditCompanyClassroomPage({ params }: EditCompanyClassroo
       setIsSubmitting(false);
     }
   };
+
 
   if (loading) {
     return (

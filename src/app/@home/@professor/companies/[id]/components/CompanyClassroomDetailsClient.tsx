@@ -416,7 +416,7 @@ export default function CompanyClassroomDetailsClient({ id }: CompanyClassroomDe
                         </div>
                         <span className="ml-2 text-sm text-gray-600">
                           {studentProgress[student.id] || 0}%
-                          ({student.completedHours || 0}/{classroom.ojtHours || 600} hours)
+                          {/* ({student.completedHours || 0}/{classroom.ojtHours || 600} hours) */}
                         </span>
                       </div>
                     </div>

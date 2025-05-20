@@ -27,12 +27,14 @@ interface Report {
   status: string;
   studentName: string;
   createdAt?: string;
+  feedback?: string; 
 }
 
 interface Classroom {
   id: number;
   name: string;
   description: string;
+  ojtHours?: number; 
   professor: {
     id: number;
     email: string;
@@ -80,21 +82,26 @@ export default function ProfessorView() {
     }
   };
 
-  const fetchClassroomDetails = async (classroomId: number) => {
-    try {
-      const response = await fetch(`/api/admin/companies/classrooms/${classroomId}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch classroom details');
-      }
-      const data = await response.json();
-      // console.log(`Classroom ${classroomId} details:`, data);
-      return data;
-    } catch (error) {
-      console.error(`Error fetching classroom ${classroomId} details:`, error);
-      throw error;
+const fetchClassroomDetails = async (classroomId: number) => {
+  try {
+    const response = await fetch(`/api/admin/companies/classrooms/${classroomId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch classroom details');
     }
-  };
+    const data = await response.json();
+    // console.log(`Classroom ${classroomId} details:`, data);
+    
+    if (data && !data.ojtHours) {
+      data.ojtHours = 600; 
+    }
+    
+    return data;
+  } catch (error) {
+    console.error(`Error fetching classroom ${classroomId} details:`, error);
+    throw error;
+  }
+};
 
   const fetchReports = async (classroomId: number) => {
     try {
@@ -207,8 +214,15 @@ export default function ProfessorView() {
 
       setStudentProgress(allProgressData);
 
-
+setReports(allReports);
       setMeetings(allMeetings);
+      setPendingReports(allReports.filter(report =>
+      (report.status === 'submitted' || report.status === 'pending') && 
+      (!report.feedback || report.feedback.trim() === '')
+    ).length);
+    setCompletedEvals(allReports.filter(report =>
+      report.feedback && report.feedback.trim() !== ''
+    ).length);
 
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -265,8 +279,8 @@ export default function ProfessorView() {
     <main className="flex-1 p-8">
       {/* Title Section */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Professor Dashboard</h1>
-        <p className="text-gray-600 mt-1">OJT Supervisor - Web Development Track</p>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">Manage your students and see all progress</p>
       </div>
 
       {/* Stats Grid */}
@@ -307,7 +321,7 @@ export default function ProfessorView() {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Students</h2>
-                <Link href="/companies" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+                <Link href="/students" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
                   <UserPlus className="w-5 h-5" />
                   <span>Manage Students</span>
                 </Link>

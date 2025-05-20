@@ -37,24 +37,33 @@ export default function ProgressDashboard({ classroomId }: ProgressDashboardProp
   const entriesPageCount = Math.ceil((timeEntries?.length || 0) / entriesPerPage);
 
   const fetchData = async () => {
-    try {
-      const entriesResponse = await fetch(`/api/student/time-entries?classroomId=${classroomId}`);
-      if (!entriesResponse.ok) {
-        throw new Error('Failed to fetch time entries');
-      }
-      const entriesData = await entriesResponse.json();
-      setTimeEntries(entriesData);
-
-      const progressResponse = await fetch(`/api/student/progress?classroomId=${classroomId}`);
-      if (!progressResponse.ok) {
-        throw new Error('Failed to fetch progress');
-      }
-      const progressData = await progressResponse.json();
-      setProgress(progressData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+  try {
+    const entriesResponse = await fetch(`/api/student/time-entries?classroomId=${classroomId}`);
+    if (!entriesResponse.ok) {
+      const errorData = await entriesResponse.json();
+      throw new Error(errorData.message || 'Failed to fetch time entries');
     }
-  };
+    const entriesData = await entriesResponse.json();
+    setTimeEntries(entriesData);
+    
+    const progressResponse = await fetch(`/api/student/progress?classroomId=${classroomId}`);
+    if (!progressResponse.ok) {
+      const errorText = await progressResponse.text();
+      let errorMessage = 'Failed to fetch progress';
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {}
+      throw new Error(errorMessage);
+    }
+    const progressData = await progressResponse.json();
+    setProgress(progressData);
+    
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    setError(err instanceof Error ? err.message : 'An error occurred');
+  }
+};
 
   useEffect(() => {
     fetchData();

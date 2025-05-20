@@ -51,7 +51,7 @@ export function ClassroomDetailClient({ id }: ClassroomDetailClientProps) {
   const { userId } = useAuth();
   const [classroom, setClassroom] = useState<ClassroomDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+const [refreshKey, setRefreshKey] = useState(0);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [myReports, setMyReports] = useState<Report[]>([]);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -238,7 +238,7 @@ export function ClassroomDetailClient({ id }: ClassroomDetailClientProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left column - Progress and Reports */}
         <div className="lg:col-span-2 space-y-8">
-          <ProgressDashboard classroomId={Number(id)} />
+          <ProgressDashboard key={refreshKey} classroomId={Number(id)} />
 
           {/* Recent Reports with Pagination */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -342,6 +342,7 @@ export function ClassroomDetailClient({ id }: ClassroomDetailClientProps) {
             classroomId={Number(id)}
             onSuccess={() => {
               fetchProgressData();
+              setRefreshKey(prev => prev + 1);
             }}
           />
 
