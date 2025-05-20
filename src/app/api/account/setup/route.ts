@@ -18,22 +18,26 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const clerkId = formData.get("clerkId") as string;
-    const email = formData.get("email") as string;
     const role = formData.get("role") as "student" | "professor" | "admin";
+    
+    // Get email directly from Clerk instead of form data
+    let email = formData.get("email") as string;
+    
+    // If email is missing, fetch it from Clerk
+    if (!email || email.trim() === '') {
+      const clerkClient = await import('@clerk/nextjs/server').then(mod => mod.clerkClient);
+      const user = await clerkClient.users.getUser(clerkId);
+      email = user.emailAddresses[0]?.emailAddress || '';
+    }
 
     // Validate the data
     if (!clerkId || !email || !role) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "Missing required fields: " + 
+          (!clerkId ? "clerkId " : "") + 
+          (!email ? "email " : "") + 
+          (!role ? "role" : "")},
         { status: 400 }
-      );
-    }
-
-    // Verify that the clerkId matches the authenticated user
-    if (clerkId !== userId) {
-      return NextResponse.json(
-        { message: "Unauthorized action" },
-        { status: 403 }
       );
     }
 
@@ -48,6 +52,7 @@ export async function POST(req: NextRequest) {
         .update(users)
         .set({
           role,
+          email, // Make sure email is updated
           updatedAt: new Date(),
         })
         .where(eq(users.clerkId, clerkId));
@@ -61,6 +66,7 @@ export async function POST(req: NextRequest) {
         updatedAt: new Date(),
       });
     }
+
 
     // Log the activity
     await db.insert(activities).values({

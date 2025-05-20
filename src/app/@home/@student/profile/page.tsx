@@ -57,14 +57,21 @@ export default function StudentProfilePage() {
   }
 
   // Format date for display
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Not set';
-    return new Date(dateString).toLocaleDateString('en-US', {
+const formatDate = (dateString?: string | null) => {
+  if (!dateString) return 'Not set';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Not set';
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-  };
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Not set';
+  }
+};
 
   // Get the first classroom (most students will be in one classroom)
   const primaryClassroom = classrooms && classrooms.length > 0 ? classrooms[0] : null;

@@ -1,54 +1,75 @@
 'use client';
 
-import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
-export function RoleSelection() {
-  const { user } = useUser();
-  const [role, setRole] = useState("student");
-  const [isLoading, setIsLoading] = useState(false);
+export default function RoleSelectionPage() {
+  const { user, isLoaded } = useUser();
   const router = useRouter();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [role, setRole] = useState<"student" | "professor" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    router.push('/sign-in');
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    
+    if (!role) {
+      setError("Please select a role to continue");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/users/update-role', {
+      console.log("Setting up account for role:", role);
+      
+      const formData = new FormData();
+      formData.append('clerkId', user.id);
+      
+      const primaryEmail = user.emailAddresses.find(email => 
+        email.id === user.primaryEmailAddressId
+      )?.emailAddress;
+      
+      formData.append('email', primaryEmail || user.emailAddresses[0]?.emailAddress || '');
+      formData.append('role', role);
+
+      const response = await fetch('/api/account/setup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role, email }),
+        body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update user role in database');
-      }
-
-      const data = await response.json();
-
+      let data;
       try {
-        await user?.update({
-          unsafeMetadata: {
-            role: role,
-          },
-        });
-      } catch (metadataError) {
-        console.error("Error updating Clerk metadata:", metadataError);
+        data = await response.json();
+      } catch (e) {
+        console.error("Failed to parse response JSON:", e);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!response.ok) {
+        throw new Error(data?.message || 'Failed to set up account');
+      }
 
-      router.push("/");
-    } catch (error) {
-      console.error("Error setting role:", error);
-      alert(error instanceof Error ? error.message : "Failed to set role. Please try again.");
+      console.log("Account setup successful, redirecting to home");
+      
+      // Force a complete page reload to clear any stale state
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Error setting up account:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -70,6 +91,12 @@ export function RoleSelection() {
           <p className="text-gray-600 text-center mt-2">Please select your role to continue</p>
         </div>
 
+        {error && (
+          <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div 
@@ -86,7 +113,7 @@ export function RoleSelection() {
                 name="role"
                 value="student"
                 checked={role === "student"}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={() => setRole("student")}
                 className="hidden"
               />
               <label htmlFor="student" className="cursor-pointer">
@@ -113,7 +140,7 @@ export function RoleSelection() {
                 name="role"
                 value="professor"
                 checked={role === "professor"}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={() => setRole("professor")}
                 className="hidden"
               />
               <label htmlFor="professor" className="cursor-pointer">
@@ -129,12 +156,12 @@ export function RoleSelection() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 
               transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
               font-medium text-lg shadow-sm"
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <span className="flex items-center justify-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
