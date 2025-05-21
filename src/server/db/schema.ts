@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { sql, relations } from "drizzle-orm";
 import {
   integer,
@@ -223,3 +224,56 @@ export const timeEntriesRelations = relations(timeEntries, ({ one }) => ({
     
   }),
 }));
+=======
+import { sql } from "drizzle-orm";
+import { 
+  integer,
+  text,
+  sqliteTable,
+} from "drizzle-orm/sqlite-core";
+
+export const users = sqliteTable("user", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clerkId: text("clerk_id").notNull().unique(),
+  email: text("email").notNull(),
+  role: text("role", { enum: ['student', 'professor', 'admin'] }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  isActive: integer("is_active", { mode: "boolean" }).default(1).notNull()
+});
+
+export const activities = sqliteTable("activity", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  type: text("type", { enum: ['student', 'professor', 'company', 'system'] }).notNull(),
+  description: text("description").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  userId: integer("user_id").references(() => users.id).notNull()
+});
+
+export const systemMetrics = sqliteTable("system_metrics", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  metricName: text("metric_name").notNull(),
+  metricValue: text("metric_value").notNull(),
+  lastUpdated: integer("last_updated", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  lastBackup: integer("last_backup", { mode: "timestamp" }).$defaultFn(() => new Date())
+});
+
+export const classrooms = sqliteTable("classroom", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description"),
+  professorId: integer("professor_id").references(() => users.id).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  isActive: integer("is_active", { mode: "boolean" }).default(1).notNull()
+});
+
+export const studentClassrooms = sqliteTable("student_classroom", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  studentId: integer("student_id").references(() => users.id).notNull(),
+  classroomId: integer("classroom_id").references(() => classrooms.id).notNull(),
+  joinedAt: integer("joined_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  status: text("status").default("active").notNull(),
+  progress: integer("progress").default(0)
+});
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77

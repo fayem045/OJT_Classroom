@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -101,6 +102,67 @@ export default function RoleSelectionPage() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
+=======
+import { useUser } from "@clerk/nextjs";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+export function RoleSelection() {
+  const { user } = useUser();
+  const [role, setRole] = useState("student");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Update Clerk user metadata
+      await user?.update({
+        unsafeMetadata: {
+          role: role,
+        },
+      });
+
+      // Update database
+      const response = await fetch('/api/users/update-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to update user role in database');
+      }
+
+      // Direct routing based on role
+      switch (role) {
+        case 'student':
+          window.location.href = "/classrooms/student";
+          break;
+        case 'professor':
+          window.location.href = "/classrooms";
+          break;
+        case 'admin':
+          window.location.href = "/classrooms/admin";
+          break;
+        default:
+          window.location.href = "/classrooms";
+      }
+    } catch (error) {
+      console.error("Error setting role:", error);
+      setError(error instanceof Error ? error.message : 'Failed to set role. Please try again.');
+    } finally {
+      setIsLoading(false);
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     }
   };
 
@@ -122,12 +184,15 @@ export default function RoleSelectionPage() {
           <p className="text-gray-600 text-center mt-2">Please select your role to continue</p>
         </div>
 
+<<<<<<< HEAD
         {error && (
           <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
             {error}
           </div>
         )}
 
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div 
@@ -144,7 +209,11 @@ export default function RoleSelectionPage() {
                 name="role"
                 value="student"
                 checked={role === "student"}
+<<<<<<< HEAD
                 onChange={() => setRole("student")}
+=======
+                onChange={(e) => setRole(e.target.value)}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
                 className="hidden"
               />
               <label htmlFor="student" className="cursor-pointer">
@@ -159,7 +228,11 @@ export default function RoleSelectionPage() {
 
             <div 
               className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+<<<<<<< HEAD
                 role === "professor"
+=======
+                role === "professor" || role === "admin" 
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
                   ? "border-blue-600 bg-blue-50" 
                   : "border-gray-200 hover:border-blue-300"
               }`}
@@ -170,14 +243,24 @@ export default function RoleSelectionPage() {
                 id="professor"
                 name="role"
                 value="professor"
+<<<<<<< HEAD
                 checked={role === "professor"}
                 onChange={() => setRole("professor")}
+=======
+                checked={role === "professor" || role === "admin"}
+                onChange={(e) => setRole(e.target.value)}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
                 className="hidden"
               />
               <label htmlFor="professor" className="cursor-pointer">
                 <div className="flex flex-col items-center text-center space-y-2">
+<<<<<<< HEAD
                   <span className={`font-medium ${role === "professor" ? "text-blue-600" : "text-gray-700"}`}>
                     Professor
+=======
+                  <span className={`font-medium ${role === "professor" || role === "admin" ? "text-blue-600" : "text-gray-700"}`}>
+                    Professor/Admin
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
                   </span>
                   <p className="text-sm text-gray-500">Supervise, evaluate & manage system</p>
                 </div>
@@ -187,12 +270,20 @@ export default function RoleSelectionPage() {
 
           <button
             type="submit"
+<<<<<<< HEAD
             disabled={isSubmitting}
+=======
+            disabled={isLoading}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 
               transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
               font-medium text-lg shadow-sm"
           >
+<<<<<<< HEAD
             {isSubmitting ? (
+=======
+            {isLoading ? (
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
               <span className="flex items-center justify-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

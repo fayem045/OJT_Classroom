@@ -13,8 +13,11 @@ export const env = createEnv({
       .default("development"),
     CLERK_SECRET_KEY: z.string().min(1),
     CLERK_WEBHOOK_SECRET: z.string().min(1),
+<<<<<<< HEAD
     UPLOADTHING_SECRET: z.string().min(1).optional(),
     UPLOADTHING_APP_ID: z.string().min(1).optional(),
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   },
 
   /**
@@ -24,7 +27,10 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+<<<<<<< HEAD
     NEXT_PUBLIC_UPLOADTHING_URL: z.string().min(1).optional(),
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   },
 
   /**
@@ -37,9 +43,12 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+<<<<<<< HEAD
     UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
     NEXT_PUBLIC_UPLOADTHING_URL: process.env.NEXT_PUBLIC_UPLOADTHING_URL,
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

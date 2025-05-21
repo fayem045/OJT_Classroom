@@ -1,5 +1,6 @@
 import { type Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+<<<<<<< HEAD
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
@@ -16,6 +17,18 @@ const inter = Inter({
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
+=======
+import { Geist, Geist_Mono } from "next/font/google";
+import "~/styles/globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   subsets: ["latin"],
 });
 
@@ -32,6 +45,7 @@ export const metadata: Metadata = {
   },
 };
 
+<<<<<<< HEAD
 const isUploadThingConfigured = 
   typeof process.env.NEXT_PUBLIC_UPLOADTHING_URL === 'string' && 
   process.env.NEXT_PUBLIC_UPLOADTHING_URL !== '';
@@ -96,6 +110,20 @@ export default async function RootLayout({
       signUpUrl="/" 
       afterSignInUrl="/" 
       afterSignUpUrl="/role-selection"
+=======
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <ClerkProvider 
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      afterSignInUrl="/classrooms"
+      afterSignUpUrl="/role-selection"
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
       appearance={{
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
@@ -108,6 +136,7 @@ export default async function RootLayout({
       <html lang="en">
         <body
           suppressHydrationWarning
+<<<<<<< HEAD
           className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
           {/* Configure UploadThing if available */}
@@ -123,8 +152,17 @@ export default async function RootLayout({
             auth={authSlot}
             children={children}
           />
+=======
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          {children}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         </body>
       </html>
     </ClerkProvider>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77

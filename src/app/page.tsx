@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "~/server/db";
@@ -40,3 +41,16 @@ export default async function RootPage() {
     return null;
   }
 }
+=======
+import Navbar from '@/components/Navbar';
+import Hero from '@/components/Hero';
+
+export default function Home() {
+  return (
+    <main className="min-h-screen relative">
+      <Navbar />
+      <Hero />
+    </main>
+  );
+}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77

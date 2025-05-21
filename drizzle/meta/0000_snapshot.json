@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "id": "d29e38aa-e425-4c22-859e-9168b2ff7323",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
@@ -26,11 +27,49 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+=======
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "e9813ce8-ebc2-4eec-b6e3-5b77eeaf615f",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "activity": {
+      "name": "activity",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
+<<<<<<< HEAD
           "notNull": false
         },
         "created_at": {
@@ -39,14 +78,25 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+=======
+          "notNull": true,
+          "autoincrement": false
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         }
       },
       "indexes": {},
       "foreignKeys": {
+<<<<<<< HEAD
         "ojtclassroom-finalproj_activity_user_id_ojtclassroom-finalproj_user_id_fk": {
           "name": "ojtclassroom-finalproj_activity_user_id_ojtclassroom-finalproj_user_id_fk",
           "tableFrom": "ojtclassroom-finalproj_activity",
           "tableTo": "ojtclassroom-finalproj_user",
+=======
+        "activity_user_id_user_id_fk": {
+          "name": "activity_user_id_user_id_fk",
+          "tableFrom": "activity",
+          "tableTo": "user",
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
           "columnsFrom": [
             "user_id"
           ],
@@ -59,6 +109,7 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+<<<<<<< HEAD
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -149,12 +200,209 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+=======
+      "checkConstraints": {}
+    },
+    "classroom": {
+      "name": "classroom",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "professor_id": {
+          "name": "professor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "classroom_professor_id_user_id_fk": {
+          "name": "classroom_professor_id_user_id_fk",
+          "tableFrom": "classroom",
+          "tableTo": "user",
+          "columnsFrom": [
+            "professor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "student_classroom": {
+      "name": "student_classroom",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "classroom_id": {
+          "name": "classroom_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "joined_at": {
+          "name": "joined_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "progress": {
+          "name": "progress",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "student_classroom_student_id_user_id_fk": {
+          "name": "student_classroom_student_id_user_id_fk",
+          "tableFrom": "student_classroom",
+          "tableTo": "user",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "student_classroom_classroom_id_classroom_id_fk": {
+          "name": "student_classroom_classroom_id_classroom_id_fk",
+          "tableFrom": "student_classroom",
+          "tableTo": "classroom",
+          "columnsFrom": [
+            "classroom_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "system_metrics": {
+      "name": "system_metrics",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "metric_name": {
+          "name": "metric_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metric_value": {
+          "name": "metric_value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "last_updated": {
+          "name": "last_updated",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_backup": {
+          "name": "last_backup",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+<<<<<<< HEAD
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -168,11 +416,25 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+=======
+      "checkConstraints": {}
+    },
+    "user": {
+      "name": "user",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
         },
         "clerk_id": {
           "name": "clerk_id",
           "type": "text",
           "primaryKey": false,
+<<<<<<< HEAD
           "notNull": true
         },
         "email": {
@@ -250,5 +512,71 @@
     "columns": {},
     "schemas": {},
     "tables": {}
+=======
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {
+        "user_clerk_id_unique": {
+          "name": "user_clerk_id_unique",
+          "columns": [
+            "clerk_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   }
 }

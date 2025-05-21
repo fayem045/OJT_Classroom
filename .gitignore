@@ -15,7 +15,10 @@ db.sqlite
 
 # next.js
 /.next/
+<<<<<<< HEAD
 /.next-local/
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 /out/
 next-env.d.ts
 
@@ -46,5 +49,8 @@ yarn-error.log*
 # idea files
 .idea
 .vercel
+<<<<<<< HEAD
 
 .vercel
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77

@@ -9,22 +9,36 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     /* Bundled projects */
     "lib": ["dom", "dom.iterable", "ES2022"],
     "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "preserve",
+<<<<<<< HEAD
     "plugins": [
       {
         "name": "next"
       }
     ],
     "incremental": true,
+=======
+    "plugins": [{ "name": "next" }],
+    "incremental": true,
+
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
@@ -33,6 +47,7 @@
     }
   },
   "include": [
+<<<<<<< HEAD
     "**/*.cjs",
     "**/*.js",
     "**/*.ts",
@@ -42,4 +57,14 @@
     ".next-local/types/**/*.ts"
   ],
   "exclude": ["node_modules", ".next", ".next-local", "dist", "out"]
+=======
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cjs",
+    "**/*.js",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 }

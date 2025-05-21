@@ -1,5 +1,9 @@
 import { postRouter } from "~/server/api/routers/post";
+<<<<<<< HEAD
 import { professorRouter } from "~/server/api/routers/professor";
+=======
+import { adminRouter } from "~/server/api/routers/admin";
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -9,7 +13,11 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
+<<<<<<< HEAD
   professor: professorRouter,
+=======
+  admin: adminRouter,
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 });
 
 // export type definition of API

@@ -2,6 +2,10 @@
   "name": "ojtclassroom-finalproj",
   "version": "0.1.0",
   "private": true,
+<<<<<<< HEAD
+=======
+  "type": "module",
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
@@ -9,7 +13,10 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+<<<<<<< HEAD
     "db:setup": "tsx scripts/setup-database.ts",
+=======
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
@@ -17,6 +24,7 @@
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
+<<<<<<< HEAD
     "typecheck": "tsc --noEmit",
     "predeploy": "tsx scripts/pre-deploy.ts",
     "deploy": "next build",
@@ -24,11 +32,18 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.0",
+=======
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.18.4",
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-query": "^5.69.0",
     "@trpc/client": "^11.0.0",
     "@trpc/react-query": "^11.0.0",
     "@trpc/server": "^11.0.0",
+<<<<<<< HEAD
     "@uploadthing/react": "^7.3.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
@@ -65,6 +80,39 @@
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
     "autoprefixer": "^10.4.17"
+=======
+    "better-sqlite3": "^11.10.0",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.43.1",
+    "lucide-react": "^0.503.0",
+    "next": "^15.2.3",
+    "postgres": "^3.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "recharts": "^2.15.3",
+    "server-only": "^0.0.1",
+    "superjson": "^2.2.1",
+    "svix": "^1.65.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.0.15",
+    "@types/node": "^20.14.10",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "drizzle-kit": "^0.31.0",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "^15.2.3",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwindcss": "^4.0.15",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.27.0"
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
   },
   "ct3aMetadata": {
     "initVersion": "7.39.3"

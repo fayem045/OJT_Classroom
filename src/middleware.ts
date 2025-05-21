@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { authMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -61,3 +62,25 @@ export default authMiddleware({
 export const config = {
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
+=======
+import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+// Public routes that don't require authentication
+const publicPaths = [
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/clerk-webhook'
+];
+
+export default clerkMiddleware();
+
+export const config = {
+  matcher: [
+    "/((?!.*\\..*|_next).*)",
+    "/(api|trpc)(.*)"
+  ],
+}; 
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77

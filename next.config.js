@@ -5,6 +5,7 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
+<<<<<<< HEAD
 const config = {
   images: {
     domains: [],
@@ -19,5 +20,8 @@ const config = {
   distDir: process.env.NODE_ENV === 'development' ? '.next-local' : '.next',
   // Add any other configuration options here
 };
+=======
+const config = {};
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 
 export default config;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,4 +11,11 @@
       "Source Code Pro", Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
   }
+=======
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+>>>>>>> 5af29285aac4e7d151f054d48591d05624f3fa77
 }
