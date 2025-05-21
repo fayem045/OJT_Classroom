@@ -24,9 +24,12 @@ export const FileUpload = ({
   const isUploadThingConfigured = true;
 
   const handleComplete = useCallback(
-    (res: Array<{ fileUrl: string }>) => {
-      if (res?.[0]?.fileUrl && onUploadComplete) {
-        onUploadComplete(res[0].fileUrl);
+    (res: any[]) => {
+      if (res?.[0]) {
+        const fileUrl = res[0].url;
+        if (fileUrl && onUploadComplete) {
+          onUploadComplete(fileUrl);
+        }
       }
     },
     [onUploadComplete]
@@ -43,7 +46,7 @@ export const FileUpload = ({
 
   return (
     <div className={className}>
-      <UploadDropzone<OurFileRouter>
+      <UploadDropzone<OurFileRouter, FileUploadProps["endpoint"]>
   endpoint={endpoint}
   onUploadBegin={() => {
     if (onUploadBegin) onUploadBegin();
@@ -99,7 +102,7 @@ const handleComplete = useCallback(
 
   return (
     <div className={className}>
-      <UploadButton<OurFileRouter>
+      <UploadButton<OurFileRouter, FileUploadProps["endpoint"]>
         endpoint={endpoint}
         onBeforeUploadBegin={(files) => {
           console.log("Before upload begin:", files);

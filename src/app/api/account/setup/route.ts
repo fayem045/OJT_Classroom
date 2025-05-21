@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { activities } from "~/server/db/schema";
@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
-  
+
   if (!userId) {
     return NextResponse.json(
       { message: "Unauthorized" },
@@ -19,13 +19,12 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const clerkId = formData.get("clerkId") as string;
     const role = formData.get("role") as "student" | "professor" | "admin";
-    
+
     // Get email directly from Clerk instead of form data
     let email = formData.get("email") as string;
-    
+
     // If email is missing, fetch it from Clerk
     if (!email || email.trim() === '') {
-      const clerkClient = await import('@clerk/nextjs/server').then(mod => mod.clerkClient);
       const user = await clerkClient.users.getUser(clerkId);
       email = user.emailAddresses[0]?.emailAddress || '';
     }
@@ -33,10 +32,12 @@ export async function POST(req: NextRequest) {
     // Validate the data
     if (!clerkId || !email || !role) {
       return NextResponse.json(
-        { message: "Missing required fields: " + 
-          (!clerkId ? "clerkId " : "") + 
-          (!email ? "email " : "") + 
-          (!role ? "role" : "")},
+        {
+          message: "Missing required fields: " +
+            (!clerkId ? "clerkId " : "") +
+            (!email ? "email " : "") +
+            (!role ? "role" : "")
+        },
         { status: 400 }
       );
     }
@@ -67,15 +68,24 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await clerkClient.users.updateUser(clerkId, {
+      unsafeMetadata: {
+        role
+      },
+    });
 
-    // Log the activity
+    console.log(`User ${existingUser ? 'updated' : 'created'} successfully with role ${role} in both DB and Clerk:`, {
+      clerkId,
+      email,
+      role
+    });
+
     await db.insert(activities).values({
       type: role === "admin" ? "system" : role,
       action: `User signed up as ${role}`,
       createdAt: new Date(),
     });
 
-    // Determine redirect based on role
     let redirectUrl = "/";
     if (role === "student") {
       redirectUrl = "/";
@@ -96,4 +106,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

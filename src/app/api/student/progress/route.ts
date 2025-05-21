@@ -69,7 +69,7 @@ export async function GET(req: Request) {
       )
     );
     
-    const completedHours = hoursResult[0]?.total || 0;
+    const completedHours = Number(hoursResult[0]?.total) || 0;
     
     const progressPercentage = Math.min(100, Math.round((completedHours / requiredHours) * 100));
     

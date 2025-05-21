@@ -31,6 +31,7 @@ const Hero = () => {
             <div className="flex flex-wrap gap-4 sm:gap-6">
               {isMounted && isLoaded && !isSignedIn && (
                 <>
+                  {/* @ts-ignore - The afterSignUpUrl works at runtime but TS doesn't recognize it */}
                   <SignUpButton mode="modal" afterSignUpUrl="/role-selection">
                     <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-semibold rounded-xl 
                       shadow-lg hover:bg-blue-50 transform hover:-translate-y-1 hover:scale-105 

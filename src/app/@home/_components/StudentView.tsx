@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Building2, Plus, Clock, Video, FileText, Upload, CheckCircle, XCircle } from 'lucide-react';
-import JoinClassroomModal from '../../@student/components/JoinClassroomModal';
+import JoinClassroomModal from '~/app/@home/@student/components/JoinClassroomModal';
 
 interface Classroom {
   id: number;
