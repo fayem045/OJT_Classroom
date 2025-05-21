@@ -1,32 +1,63 @@
-import { NextResponse } from "next/server";
 import { authMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
+/**
+ * List of public routes that don't require authentication
+ * These paths will be accessible without being logged in
+ */
+const publicPaths = [
+  "/",
+  "/sign-in*",
+  "/sign-up*",
+  "/api/uploadthing*",
+  "/api/webhook*",
+];
+
+/**
+ * Checks if the current path matches any of the public paths
+ * @param path - The current request path
+ * @returns boolean indicating if the path is public
+ */
+const isPublic = (path: string) => {
+  return publicPaths.find((x) =>
+    path.match(new RegExp(`^${x.replace("*", ".*")}$`))
+  );
+};
+
+/**
+ * Middleware function that handles authentication and request processing
+ * This runs before any page or API route is accessed
+ */
 export default authMiddleware({
-  publicRoutes: [
-    "/", 
-    "/role-selection",
-    "/api/(.*)",
-    "/_next(.*)",
-    "/favicon.ico",
-    "/__nextjs_original-stack-frame(.*)"
-  ],
-  afterAuth(auth, req) {
-    const response = NextResponse.next();
-    
-    response.headers.set("x-url", req.url);
-    
-    for (const cookie of req.cookies.getAll()) {
-      response.cookies.set(cookie.name, cookie.value);
+  beforeAuth: (req) => {
+    // Execute any code before authentication is checked
+    return NextResponse.next();
+  },
+  afterAuth: (auth, req) => {
+    // Handle the request after authentication is checked
+    const path = req.nextUrl.pathname;
+
+    // Allow public paths without authentication
+    if (isPublic(path)) {
+      return NextResponse.next();
     }
-    
-    if (auth.isPublicRoute || auth.userId) {
-      return response;
+
+    // Redirect to sign-in if not authenticated
+    if (!auth.userId) {
+      const signInUrl = new URL("/", req.url);
+      signInUrl.searchParams.set("redirect_url", req.url);
+      return NextResponse.redirect(signInUrl);
     }
-    
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+
+    return NextResponse.next();
+  },
 });
 
+/**
+ * Configure which paths the middleware should run on
+ * This ensures the middleware only runs on necessary routes
+ */
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

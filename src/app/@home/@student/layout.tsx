@@ -15,10 +15,15 @@ import {
 } from 'lucide-react';
 import StudentNavbar from './components/StudentNavbar';
 import { useUser } from "@clerk/nextjs"; 
+
 interface StudentLayoutProps {
   children: ReactNode;
 }
 
+/**
+ * Student layout component that provides the main structure for student pages
+ * Includes responsive sidebar navigation and main content area
+ */
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const { isLoaded } = useUser();
   const [mounted, setMounted] = useState(false);
@@ -45,26 +50,33 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar with overlay */}
       <div className="md:hidden">
         <div className={`fixed inset-0 z-40 flex ${sidebarOpen ? '' : 'pointer-events-none'}`}>
+          {/* Backdrop overlay */}
           <div
-            className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ease-linear duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'
-              }`}
+            className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ease-linear duration-300 ${
+              sidebarOpen ? 'opacity-100' : 'opacity-0'
+            }`}
             onClick={() => setSidebarOpen(false)}
           />
-          <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transition ease-in-out duration-300 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}>
+          {/* Mobile sidebar content */}
+          <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transition ease-in-out duration-300 transform ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+            {/* Close button for mobile sidebar */}
             <div className="absolute top-0 right-0 -mr-12 pt-2">
               <button
-                className={`ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${sidebarOpen ? '' : 'pointer-events-none'
-                  }`}
+                className={`ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${
+                  sidebarOpen ? '' : 'pointer-events-none'
+                }`}
                 onClick={() => setSidebarOpen(false)}
               >
                 <span className="sr-only">Close sidebar</span>
                 <X className="h-6 w-6 text-white" aria-hidden="true" />
               </button>
             </div>
+            {/* Mobile navigation menu */}
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex items-center px-4">
                 <h1 className="text-blue-600 text-xl font-bold">TrainTrackDesk</h1>
@@ -74,14 +86,16 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${item.current
+                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                      item.current
                         ? 'bg-blue-100 text-blue-600'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                      }`}
+                    }`}
                   >
                     <item.icon
-                      className={`mr-4 h-6 w-6 ${item.current ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500'
-                        }`}
+                      className={`mr-4 h-6 w-6 ${
+                        item.current ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500'
+                      }`}
                       aria-hidden="true"
                     />
                     {item.name}

@@ -36,13 +36,21 @@ const isUploadThingConfigured =
   typeof process.env.NEXT_PUBLIC_UPLOADTHING_URL === 'string' && 
   process.env.NEXT_PUBLIC_UPLOADTHING_URL !== '';
 
+/**
+ * Determines if the current path should show authentication UI
+ * @param path - Current URL path
+ * @param isUnauthenticated - Whether the user is not authenticated
+ * @returns boolean indicating if auth UI should be shown
+ */
 function isAuthPath(path: string, isUnauthenticated: boolean): boolean {
   console.log("isAuthPath input:", { path, isUnauthenticated });
   
+  // Show auth UI for authentication-related paths
   if (["/sign-in", "/sign-up", "/sign-out", "/role-selection"].includes(path)) {
     return true;
   }
   
+  // Show auth UI at root path for unauthenticated users
   if (path === "/" && isUnauthenticated === true) {
     console.log("Should show auth at root for unauthenticated user");
     return true;
@@ -50,6 +58,11 @@ function isAuthPath(path: string, isUnauthenticated: boolean): boolean {
   
   return false;
 }
+
+/**
+ * Root layout component that wraps the entire application
+ * Handles authentication, routing, and global UI elements
+ */
 export default async function RootLayout({
   children,
   home,
@@ -63,16 +76,20 @@ export default async function RootLayout({
   student: React.ReactNode;
   auth: React.ReactNode;
 }>) {
+  // Get current user's authentication status
   const { userId } = await auth();
   const headersList = headers();
   const fullUrl = headersList.get("x-url") || "/";
   const path = new URL(fullUrl).pathname;
 
+  // Determine if user is unauthenticated and if auth UI should be shown
   const isUnauthenticated = userId === null;
   const showAuth = path === "/" && isUnauthenticated ? true : isAuthPath(path, isUnauthenticated);
   
   console.log("Auth state:", { path, userId, isUnauthenticated, showAuth });
+
   return (
+    // Configure Clerk authentication provider with custom styling
     <ClerkProvider 
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl="/"  
@@ -93,9 +110,11 @@ export default async function RootLayout({
           suppressHydrationWarning
           className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
+          {/* Configure UploadThing if available */}
           {isUploadThingConfigured && (
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           )}
+          {/* Client provider handles role-based routing and layout */}
           <ClientProvider
             showAuth={showAuth}
             home={home}

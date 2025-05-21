@@ -1,49 +1,67 @@
 'use client';
 
-import { useState } from 'react';
-import type { ReactNode } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { 
-  Home,
-  Building2,
-  Users,
-  FileText,
-  Settings,
-  Menu,
-  X
-} from 'lucide-react';
-import ProfNavbar from './components/ProfNavbar';
+// Import necessary dependencies
+import { useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { Home, Users, FileText, Settings, Menu, X } from "lucide-react";
+import ProfNavbar from "./components/ProfNavbar";
 
+// Define props type for the layout component
 interface ProfLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
+/**
+ * Professor layout component that provides the main structure for professor pages
+ * Includes responsive sidebar navigation and main content area
+ */
 export default function ProfLayout({ children }: ProfLayoutProps) {
-  const pathname = usePathname();
+  // Get user authentication status
+  const { isLoaded } = useUser();
+  // State for client-side rendering and sidebar
+  const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home, current: pathname === '/dashboard' },
-  { name: 'Company Classrooms', href: '/companies', icon: Building2, current: pathname === '/companies' },
-  { name: 'Students', href: '/students', icon: Users, current: pathname === '/students' },
-  { name: 'Reports', href: '/reports', icon: FileText, current: pathname === '/reports' },
-  // { name: 'Settings', href: '/settings', icon: Settings, current: pathname === '/settings' },
-];
+  // Define navigation items for the sidebar
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: Home, current: pathname === '/dashboard' },
+    { name: 'Students', href: '/students', icon: Users, current: pathname === '/students' },
+    { name: 'Reports', href: '/reports', icon: FileText, current: pathname === '/reports' },
+    { name: 'Settings', href: '/settings', icon: Settings, current: pathname === '/settings' },
+  ];
+
+  // Set mounted state when component mounts
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show loading spinner while component is mounting or user is loading
+  if (!mounted || !isLoaded) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin h-8 w-8 border-4 border-blue-600 rounded-full border-t-transparent"></div>
+    </div>;
+  }
+
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar with overlay */}
       <div className="md:hidden">
         <div className={`fixed inset-0 z-40 flex ${sidebarOpen ? '' : 'pointer-events-none'}`}>
+          {/* Backdrop overlay */}
           <div
             className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ease-linear duration-300 ${
               sidebarOpen ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={() => setSidebarOpen(false)}
           />
+          {/* Mobile sidebar content */}
           <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transition ease-in-out duration-300 transform ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
+            {/* Close button for mobile sidebar */}
             <div className="absolute top-0 right-0 -mr-12 pt-2">
               <button
                 className={`ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${
@@ -55,6 +73,7 @@ const navigation = [
                 <X className="h-6 w-6 text-white" aria-hidden="true" />
               </button>
             </div>
+            {/* Mobile navigation menu */}
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex items-center px-4">
                 <h1 className="text-blue-600 text-xl font-bold">TrainTrackDesk</h1>
@@ -85,14 +104,16 @@ const navigation = [
         </div>
       </div>
 
-      {/* Static sidebar for desktop */}
+      {/* Desktop sidebar */}
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64">
           <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+              {/* Logo and title */}
               <div className="flex items-center flex-shrink-0 px-4">
                 <h1 className="text-blue-600 text-xl font-bold">TrainTrackDesk</h1>
               </div>
+              {/* Desktop navigation menu */}
               <nav className="mt-5 flex-1 px-2 space-y-1">
                 {navigation.map((item) => (
                   <Link
@@ -119,11 +140,12 @@ const navigation = [
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        {/* Top navbar */}
+        {/* Top navigation bar */}
         <ProfNavbar />
-        
+
+        {/* Mobile menu button */}
         <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
           <button
             className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
@@ -133,6 +155,8 @@ const navigation = [
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
+
+        {/* Main content container */}
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none pt-16">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
